@@ -59,6 +59,9 @@ class ImageWidget(QWidget):
         if not isinstance(colorData, np.ndarray):
             colorData = ImageWidget.emptyImageColorData()
 
+        # Create a writable copy of colorData
+        colorData = colorData.copy()
+
         height, width, channel = colorData.shape
         bytesPerLine = channel * width
 

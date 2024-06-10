@@ -19,16 +19,9 @@
 from typing_extensions import Self
 from PyQt6.QtWidgets import (
     QFrame,
-    QHBoxLayout,
     QVBoxLayout,
-    QPushButton,
-    QLabel,
-    QLineEdit,
-    QSlider,
-    QCheckBox,
 )
-from PyQt6.QtGui import QDoubleValidator, QIntValidator
-from PyQt6.QtCore import Qt, pyqtSignal, QLocale
+from PyQt6.QtCore import pyqtSignal
 from guiQt.AdvanceSliderLine import AdvanceSliderLine
 
 
@@ -74,10 +67,16 @@ class ColorEditor(QFrame):
         self.topLayout.addWidget(self.contrast)
 
         # Connect internal widget signals to the custom signals
-        self.hueShift.valueChanged.connect(self.hueChanged.emit)
-        self.saturation.valueChanged.connect(self.saturationChanged.emit)
-        self.exposure.valueChanged.connect(self.exposureChanged.emit)
-        self.contrast.valueChanged.connect(self.contrastChanged.emit)
+        self.hueShift.valueChanged.connect(lambda value: self.hueChanged.emit(value))
+        self.saturation.valueChanged.connect(
+            lambda value: self.saturationChanged.emit(value)
+        )
+        self.exposure.valueChanged.connect(
+            lambda value: self.exposureChanged.emit(value)
+        )
+        self.contrast.valueChanged.connect(
+            lambda value: self.contrastChanged.emit(value)
+        )
 
 
 # ------------------------------------------------------------------------------------------

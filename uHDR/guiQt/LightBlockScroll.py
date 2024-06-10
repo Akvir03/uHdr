@@ -30,6 +30,7 @@ from guiQt.LightBlock import LightBlock
 class LightBlockScroll(QScrollArea):
     # class attributes
     ## signal
+    colorChanged = pyqtSignal(str, float)
 
     # constructor
     def __init__(self: Self) -> None:
@@ -45,6 +46,18 @@ class LightBlockScroll(QScrollArea):
         self.setWidgetResizable(True)
 
         self.setWidget(self.light)
+        self.light.hueChanged.connect(
+            lambda value: self.colorChanged.emit("hue", value)
+        )
+        self.light.saturationChanged.connect(
+            lambda value: self.colorChanged.emit("saturation", value)
+        )
+        self.light.exposureChanged.connect(
+            lambda value: self.colorChanged.emit("exposure", value)
+        )
+        self.light.contrastChanged.connect(
+            lambda value: self.colorChanged.emit("contrast", value)
+        )
 
 
 # ------------------------------------------------------------------------------------------

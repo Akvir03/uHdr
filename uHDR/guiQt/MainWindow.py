@@ -83,7 +83,7 @@ class MainWindow(QMainWindow):
         ## callbacks
         ### from AdvanceImageGallery
         self.editBlock.imageChanged.connect(self.onImageChanged)
-        self.editBlock.imageChanged.connect(self.imageChanged)  # Propagate the signal
+        self.editBlock.imageChanged.connect(self.imageChanged)  # Propagate signal
         self.imageGallery.requestImages.connect(self.CBrequestImages)
         self.imageGallery.imageSelected.connect(self.CBimageSelected)
         self.metaBlock.tagChanged.connect(self.CBtagChanged)

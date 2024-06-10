@@ -2,7 +2,7 @@
 #   Copyright (C) 2022  remi cozot
 #
 #    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU General Public License as published by
+#    it under les terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
 #    (at your option) any later version.
 #
@@ -18,7 +18,6 @@
 # ------------------------------------------------------------------------------------------
 import copy
 from typing_extensions import Self
-from xmlrpc.client import boolean
 from PyQt6.QtWidgets import (
     QFrame,
     QHBoxLayout,
@@ -38,7 +37,7 @@ from PyQt6.QtCore import Qt, pyqtSignal, QLocale
 # ------------------------------------------------------------------------------------------
 class AdvanceSliderLine(QFrame):
     # static attributes
-    valueChanged: pyqtSignal = pyqtSignal(str, float)
+    valueChanged: pyqtSignal = pyqtSignal(float)
 
     # consructor
     def __init__(
@@ -129,7 +128,7 @@ class AdvanceSliderLine(QFrame):
                 / self.precision
             )
             self.setValue(val)
-            self.valueChanged.emit(self.name, val)
+            self.valueChanged.emit(val)
 
     def CBeditChanged(self: Self) -> None:
         if self.active:
@@ -137,12 +136,12 @@ class AdvanceSliderLine(QFrame):
                 round(float(self.edit.text()) * self.precision) / self.precision
             )
             self.setValue(val)
-            self.valueChanged.emit(self.name, val)
+            self.valueChanged.emit(val)
 
     def CBreset(self: Self) -> None:
         if self.active:
             self.setValue(self.default)
-            self.valueChanged.emit(self.name, int(self.default))
+            self.valueChanged.emit(self.default)
 
 
 # -------------------------------------------------------------------------------------------

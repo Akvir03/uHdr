@@ -52,10 +52,9 @@ class Editor(QTabWidget):
         self.addTab(self.lightEdit, "Light")
         for index, colorEdit in enumerate(self.colorEdits):
             self.addTab(colorEdit, f"Color {index}")
-            # Connect each ColorBlockScroll's colorChanged signal to the handler
             colorEdit.colorChanged.connect(self.onColorChanged)
+        self.lightEdit.colorChanged.connect(self.onColorChanged)
 
     def onColorChanged(self, colorType: str, value: float):
         print(f"Color {colorType} changed to {value}")
-        # Optionally emit a signal with the change
         self.updateRequested.emit(colorType, value)

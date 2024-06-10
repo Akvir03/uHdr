@@ -23,7 +23,7 @@ from app.Jexif import Jexif
 
 import preferences.Prefs
 from guiQt.MainWindow import MainWindow
-from app.ImageFIles import ImageFiles
+from .ImageFIles import ImageFiles
 from app.Tags import Tags
 from app.SelectionMap import SelectionMap
 
@@ -172,18 +172,18 @@ class App:
 
     #### image loaded
     #### -----------------------------------------------------------------
-    def CBimageLoaded(self: App, filename: str):
+    def CBimageLoaded(self: App, filename: str) -> None:
         """ "callback: called when requested image is loaded (asynchronous loading)."""
 
         image: ndarray = self.imagesManagement.images[filename]
-        imageIdx = self.selectionMap.imageNameToSelectedIndex(filename)
+        imageIdx: int | None = self.selectionMap.imageNameToSelectedIndex(filename)
 
-        if imageIdx != None:
+        if imageIdx is not None:
             self.mainWindow.setGalleryImage(imageIdx, image)
 
     #### image selected
     #### -----------------------------------------------------------------
-    def CBimageSelected(self: App, index):
+    def CBimageSelected(self: App, index: int) -> None:
 
         self.selectedImageIdx = index  # index in selection
 
@@ -191,7 +191,7 @@ class App:
             index
         )  # global index
 
-        if gIdx != None:
+        if gIdx is not None:
 
             image: ndarray = self.imagesManagement.getImage(
                 self.imagesManagement.getImagesFilesnames()[gIdx]
@@ -224,27 +224,27 @@ class App:
 
     #### tag changed
     #### -----------------------------------------------------------------
-    def CBtagChanged(self, key: tuple[str, str], value: bool) -> None:
+    def CBtagChanged(self: App, key: tuple[str, str], value: bool) -> None:
 
-        if self.selectedImageIdx != None:
+        if self.selectedImageIdx is not None:
             imageName: str | None = self.selectionMap.selectedIndexToImageName(
                 self.selectedImageIdx
             )
             if debug:
                 print(f"\t\t imageName:{imageName}")
-            if imageName != None:
+            if imageName is not None:
                 self.imagesManagement.updateImageTag(imageName, key[0], key[1], value)
 
     #### score changed
     #### -----------------------------------------------------------------
-    def CBscoreChanged(self, value: int) -> None:
+    def CBscoreChanged(self: App, value: int) -> None:
 
-        if self.selectedImageIdx != None:
+        if self.selectedImageIdx is not None:
             imageName: str | None = self.selectionMap.selectedIndexToImageName(
                 self.selectedImageIdx
             )
 
-            if imageName != None:
+            if imageName is not None:
                 self.imagesManagement.updateImageScore(imageName, value)
 
     ### score selection changed
@@ -255,10 +255,9 @@ class App:
         # get {'image name': score}
         imageScores: dict[str, int] = self.imagesManagement.imageScore
         # selected score
-        selectedScores: list[int] = []
-        for i, selected in enumerate(listSelectedScore):
-            if selected:
-                selectedScores.append(i)
+        selectedScores: list[int] = [
+            i for i, selected in enumerate(listSelectedScore) if selected
+        ]
         # send info to selectionMap
         self.selectionMap.selectByScore(imageScores, selectedScores)
         self.update()
