@@ -38,6 +38,10 @@ from guiQt.AdvanceSliderLine import AdvanceSliderLine
 class ColorEditor(QFrame):
     # class attributes
     ## signal
+    hueChanged = pyqtSignal(float)
+    saturationChanged = pyqtSignal(float)
+    exposureChanged = pyqtSignal(float)
+    contrastChanged = pyqtSignal(float)
 
     # constructor
     def __init__(self: Self) -> None:
@@ -68,6 +72,12 @@ class ColorEditor(QFrame):
         self.topLayout.addWidget(self.saturation)
         self.topLayout.addWidget(self.exposure)
         self.topLayout.addWidget(self.contrast)
+
+        # Connect internal widget signals to the custom signals
+        self.hueShift.valueChanged.connect(self.hueChanged.emit)
+        self.saturation.valueChanged.connect(self.saturationChanged.emit)
+        self.exposure.valueChanged.connect(self.exposureChanged.emit)
+        self.contrast.valueChanged.connect(self.contrastChanged.emit)
 
 
 # ------------------------------------------------------------------------------------------

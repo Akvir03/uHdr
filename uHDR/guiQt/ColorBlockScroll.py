@@ -30,6 +30,7 @@ from guiQt.ColorEditorBlock import ColorEditorBlock
 class ColorBlockScroll(QScrollArea):
     # class attributes
     ## signal
+    colorChanged = pyqtSignal(str, float)
 
     # constructor
     def __init__(self: Self) -> None:
@@ -45,6 +46,20 @@ class ColorBlockScroll(QScrollArea):
         self.setWidgetResizable(True)
 
         self.setWidget(self.light)
+
+        # Connect internal signals to an emitting method
+        self.light.hueChanged.connect(
+            lambda value: self.colorChanged.emit("hue", value)
+        )
+        self.light.saturationChanged.connect(
+            lambda value: self.colorChanged.emit("saturation", value)
+        )
+        self.light.exposureChanged.connect(
+            lambda value: self.colorChanged.emit("exposure", value)
+        )
+        self.light.contrastChanged.connect(
+            lambda value: self.colorChanged.emit("contrast", value)
+        )
 
 
 # ------------------------------------------------------------------------------------------

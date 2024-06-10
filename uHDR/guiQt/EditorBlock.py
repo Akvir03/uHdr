@@ -48,7 +48,14 @@ class EditorBlock(QSplitter):
         self.addWidget(self.edit)
         self.setSizes([20, 80])
 
+        # Connection to changes
+        self.edit.updateRequested.connect(self.setImage)
+
     # methods
     ## setImage
-    def setImage(self: Self, image: ndarray | None):
-        self.imageWidget.setPixmap(image)
+    def setImage(self, image: ndarray | None):
+        if image is not None:
+            self.imageWidget.setPixmap(image)
+        else:
+            # Handle the case where there is no image
+            pass

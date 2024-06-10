@@ -23,6 +23,7 @@ from PyQt6.QtCore import Qt, pyqtSignal, QLocale
 
 from guiQt.LightBlockScroll import LightBlockScroll
 from guiQt.ColorBlockScroll import ColorBlockScroll
+from numpy import ndarray
 
 
 # ------------------------------------------------------------------------------------------
@@ -31,6 +32,7 @@ from guiQt.ColorBlockScroll import ColorBlockScroll
 class Editor(QTabWidget):
     # class attributes
     ## signal
+    updateRequested = pyqtSignal(str, float)
 
     # constructor
     def __init__(self: Self) -> None:
@@ -40,8 +42,7 @@ class Editor(QTabWidget):
         self.lightEdit: LightBlockScroll = LightBlockScroll()
         self.nbColorEditor: int = 5
         self.colorEdits: list[ColorBlockScroll] = []
-        for i in range(self.nbColorEditor):
-            self.colorEdits.append(ColorBlockScroll())
+        self.colorEdits = [ColorBlockScroll() for _ in range(self.nbColorEditor)]
 
         # QTabWidget settup
         self.setTabPosition(QTabWidget.TabPosition.East)
@@ -49,5 +50,12 @@ class Editor(QTabWidget):
 
         # add widgets
         self.addTab(self.lightEdit, "Light")
-        for i in range(self.nbColorEditor):
-            self.addTab(self.colorEdits[i], "Color " + str(i))
+        for index, colorEdit in enumerate(self.colorEdits):
+            self.addTab(colorEdit, f"Color {index}")
+            # Connect each ColorBlockScroll's colorChanged signal to the handler
+            colorEdit.colorChanged.connect(self.onColorChanged)
+
+    def onColorChanged(self, colorType: str, value: float):
+        print(f"Color {colorType} changed to {value}")
+        # Optionally emit a signal with the change
+        self.updateRequested.emit(colorType, value)

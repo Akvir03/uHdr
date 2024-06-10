@@ -32,6 +32,10 @@ from guiQt.MemoGroup import MemoGroup
 class ColorEditorBlock(QFrame):
     # class attributes
     ## signal
+    hueChanged = pyqtSignal(float)
+    saturationChanged = pyqtSignal(float)
+    exposureChanged = pyqtSignal(float)
+    contrastChanged = pyqtSignal(float)
 
     # constructor
     def __init__(self: Self) -> None:
