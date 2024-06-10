@@ -1,5 +1,5 @@
 # uHDR: HDR image editing software
-#   Copyright (C) 2022  remi cozot 
+#   Copyright (C) 2022  remi cozot
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -30,7 +30,9 @@ from app.SelectionMap import SelectionMap
 # ------------------------------------------------------------------------------------------
 # --- class App ----------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------
-debug : bool = True
+debug: bool = True
+
+
 class App:
     # static attributes
 
@@ -42,32 +44,40 @@ class App:
 
         ## -----------------------------------------------------
         ## ------------         attributes          ------------
-        ## -----------------------------------------------------        
-        
+        ## -----------------------------------------------------
+
         ## image file management
-        self.imagesManagement : ImageFiles = ImageFiles()
+        self.imagesManagement: ImageFiles = ImageFiles()
         self.imagesManagement.imageLoaded.connect(self.CBimageLoaded)
         self.imagesManagement.setPrefs()
         self.imagesManagement.checkExtra()
-        nbImages : int = self.imagesManagement.setDirectory(preferences.Prefs.Prefs.currentDir)
+        nbImages: int = self.imagesManagement.setDirectory(
+            preferences.Prefs.Prefs.currentDir
+        )
 
         # read image tags in directory
-        allTagsInDir : dict[str, dict[str,bool]] =  Tags.aggregateTagsFiles(preferences.Prefs.Prefs.currentDir,preferences.Prefs.Prefs.extraPath)
-        
+        allTagsInDir: dict[str, dict[str, bool]] = Tags.aggregateTagsFiles(
+            preferences.Prefs.Prefs.currentDir, preferences.Prefs.Prefs.extraPath
+        )
+
         # merge with default tags from preferences
-        self.tags : Tags = Tags(Tags.aggregateTagsData([preferences.Prefs.Prefs.tags, allTagsInDir]))
-        
+        self.tags: Tags = Tags(
+            Tags.aggregateTagsData([preferences.Prefs.Prefs.tags, allTagsInDir])
+        )
+
         ## selection
-        self.selectionMap :  SelectionMap = SelectionMap(self.imagesManagement.getImagesFilesnames())
+        self.selectionMap: SelectionMap = SelectionMap(
+            self.imagesManagement.getImagesFilesnames()
+        )
 
         ## current selected image
-        self.selectedImageIdx : int | None = None
+        self.selectedImageIdx: int | None = None
 
         ## -----------------------------------------------------
         ## ------------             gui             ------------
         ## -----------------------------------------------------
 
-        self.mainWindow : MainWindow = MainWindow(nbImages, self.tags.toGUI())
+        self.mainWindow: MainWindow = MainWindow(nbImages, self.tags.toGUI())
         self.mainWindow.showMaximized()
         self.mainWindow.show()
 
@@ -88,8 +98,13 @@ class App:
 
     ##  getImageRangeIndex
     ## ----------------------------------------------------------------
-    def getImageRangeIndex(self: App) -> tuple[int,int]: 
+    def getImageRangeIndex(self: Self) -> tuple[int, int]:
         """return the index range (min index, max index) of images displayed by the gallery."""
+
+        if debug:
+            print(
+                f"App.getImageRangeIndex() -> {self.mainWindow.imageGallery.getImageRangeIndex()} "
+            )
 
         return self.mainWindow.imageGallery.getImageRangeIndex()
 
@@ -97,83 +112,92 @@ class App:
     ## ----------------------------------------------------------------
     def update(self: App) -> None:
         """call to update gallery after selection changed or directory changed."""
-        # number of image in current pages 
+        # number of image in current pages
         minIdx, maxIdx = self.getImageRangeIndex()
-        self.mainWindow.setNumberImages(self.selectionMap.getSelectedImageNumber()) 
-        self.mainWindow.setNumberImages(maxIdx - minIdx) 
+        self.mainWindow.setNumberImages(self.selectionMap.getSelectedImageNumber())
+        self.mainWindow.setNumberImages(maxIdx - minIdx)
         self.CBrequestImages(minIdx, maxIdx)
 
     ## -----------------------------------------------------------------------------------------------------
-    ## app logic: callbacks 
+    ## app logic: callbacks
     ## -----------------------------------------------------------------------------------------------------
 
     #### select new directory
     #### -----------------------------------------------------------------
-    def CBdirSelected(self: App, path:str) -> None:
+    def CBdirSelected(self: App, path: str) -> None:
         """callback: called when directory is selected."""
 
         # ------------- DEBUG -------------
-        if debug : 
-            print(f'App.CBdirSelected({path})')
-        # ------------- ------ -------------  
+        if debug:
+            print(f"App.CBdirSelected({path})")
+        # ------------- ------ -------------
 
         self.imagesManagement.setDirectory(path)
         self.selectionMap.setImageNames(self.imagesManagement.getImagesFilesnames())
         self.selectionMap.selectAll()
 
-        # reset gallery 
+        # reset gallery
         self.mainWindow.resetGallery()
         self.mainWindow.setNumberImages(self.imagesManagement.getNbImages())
         self.mainWindow.firstPage()
 
     #### request image: zoom or page changed
     #### -----------------------------------------------------------------
-    def CBrequestImages(self: App, minIdx: int , maxIdx:int ) -> None:
+    def CBrequestImages(self: App, minIdx: int, maxIdx: int) -> None:
         """callback: called when images are requested (occurs when page or zoom level is changed)."""
 
-        imagesFilenames : list[str] = self.imagesManagement.getImagesFilesnames()
+        imagesFilenames: list[str] = self.imagesManagement.getImagesFilesnames()
 
-        for sIdx in range(minIdx, maxIdx+1):
+        for sIdx in range(minIdx, maxIdx + 1):
 
-            gIdx : int|None = self.selectionMap.selectedlIndexToGlobalIndex(sIdx) 
+            gIdx: int | None = self.selectionMap.selectedlIndexToGlobalIndex(sIdx)
 
-            if gIdx != None: self.imagesManagement.requestLoad(imagesFilenames[gIdx])
-            else: self.mainWindow.setGalleryImage(sIdx, None)
-
+            if gIdx != None:
+                self.imagesManagement.requestLoad(imagesFilenames[gIdx])
+            else:
+                self.mainWindow.setGalleryImage(sIdx, None)
 
     #### image loaded
     #### -----------------------------------------------------------------
     def CBimageLoaded(self: App, filename: str):
-        """"callback: called when requested image is loaded (asynchronous loading)."""
+        """ "callback: called when requested image is loaded (asynchronous loading)."""
 
+        image: ndarray = self.imagesManagement.images[filename]
+        imageIdx = self.selectionMap.imageNameToSelectedIndex(filename)
 
-        image : ndarray = self.imagesManagement.images[filename]
-        imageIdx = self.selectionMap.imageNameToSelectedIndex(filename)         
-
-        if imageIdx != None: self.mainWindow.setGalleryImage(imageIdx, image)
-
+        if imageIdx != None:
+            self.mainWindow.setGalleryImage(imageIdx, image)
 
     #### image selected
     #### -----------------------------------------------------------------
     def CBimageSelected(self: App, index):
 
+        self.selectedImageIdx = index  # index in selection
 
-        self.selectedImageIdx = index # index in selection
+        gIdx: int | None = self.selectionMap.selectedlIndexToGlobalIndex(
+            index
+        )  # global index
 
-        gIdx : int | None= self.selectionMap.selectedlIndexToGlobalIndex(index)# global index
+        if gIdx != None:
 
-        if (gIdx != None):
-
-            image : ndarray = self.imagesManagement.getImage(self.imagesManagement.getImagesFilesnames()[gIdx])
-            tags : Tags = self.imagesManagement.getImageTags(self.imagesManagement.getImagesFilesnames()[gIdx])
-            exif : dict[str,str] = self.imagesManagement.getImageExif(self.imagesManagement.getImagesFilesnames()[gIdx])
-            score : int = self.imagesManagement.getImageScore(self.imagesManagement.getImagesFilesnames()[gIdx])
+            image: ndarray = self.imagesManagement.getImage(
+                self.imagesManagement.getImagesFilesnames()[gIdx]
+            )
+            tags: Tags = self.imagesManagement.getImageTags(
+                self.imagesManagement.getImagesFilesnames()[gIdx]
+            )
+            exif: dict[str, str] = self.imagesManagement.getImageExif(
+                self.imagesManagement.getImagesFilesnames()[gIdx]
+            )
+            score: int = self.imagesManagement.getImageScore(
+                self.imagesManagement.getImagesFilesnames()[gIdx]
+            )
 
             self.mainWindow.setEditorImage(image)
 
             # update image info
-            imageFilename : str =  self.imagesManagement.getImagesFilesnames()[gIdx] 
-            imagePath : str =  self.imagesManagement.imagePath 
+            imageFilename: str = self.imagesManagement.getImagesFilesnames()[gIdx]
+            imagePath: str = self.imagesManagement.imagePath
             #### if debug : print(f'App.CBimageSelected({index}) > path:{imagePath}')
 
             self.mainWindow.setInfo(imageFilename, imagePath, *Jexif.toTuple(exif))
@@ -187,38 +211,44 @@ class App:
 
     #### tag changed
     #### -----------------------------------------------------------------
-    def CBtagChanged(self, key: tuple[str, str], value : bool) -> None:
-
+    def CBtagChanged(self, key: tuple[str, str], value: bool) -> None:
 
         if self.selectedImageIdx != None:
-            imageName : str|None = self.selectionMap.selectedIndexToImageName(self.selectedImageIdx)
-            if debug : print(f'\t\t imageName:{imageName}')
-            if imageName != None : self.imagesManagement.updateImageTag(imageName, key[0], key[1], value)
-    
+            imageName: str | None = self.selectionMap.selectedIndexToImageName(
+                self.selectedImageIdx
+            )
+            if debug:
+                print(f"\t\t imageName:{imageName}")
+            if imageName != None:
+                self.imagesManagement.updateImageTag(imageName, key[0], key[1], value)
+
     #### score changed
     #### -----------------------------------------------------------------
-    def CBscoreChanged(self, value : int) -> None:
-
+    def CBscoreChanged(self, value: int) -> None:
 
         if self.selectedImageIdx != None:
-            imageName : str|None = self.selectionMap.selectedIndexToImageName(self.selectedImageIdx)
+            imageName: str | None = self.selectionMap.selectedIndexToImageName(
+                self.selectedImageIdx
+            )
 
-            if imageName != None : self.imagesManagement.updateImageScore(imageName, value)
-
+            if imageName != None:
+                self.imagesManagement.updateImageScore(imageName, value)
 
     ### score selection changed
     ### ------------------------------------------------------------------
-    def CBscoreSelectionChanged(self: App, listSelectedScore : list[bool]) -> None:
+    def CBscoreSelectionChanged(self: App, listSelectedScore: list[bool]) -> None:
         """called when selection changed."""
 
-
         # get {'image name': score}
-        imageScores : dict[str, int] = self.imagesManagement.imageScore
+        imageScores: dict[str, int] = self.imagesManagement.imageScore
         # selected score
-        selectedScores : list[int] = []
-        for i, selected in enumerate(listSelectedScore) :  
-            if selected : selectedScores.append(i)
+        selectedScores: list[int] = []
+        for i, selected in enumerate(listSelectedScore):
+            if selected:
+                selectedScores.append(i)
         # send info to selectionMap
         self.selectionMap.selectByScore(imageScores, selectedScores)
         self.update()
+
+
 # ------------------------------------------------------------------------------------------
