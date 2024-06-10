@@ -81,6 +81,7 @@ class MainWindow(QMainWindow):
 
         ## callbacks
         ### from AdvanceImageGallery
+        self.editBlock.imageChanged.connect(self.onImageChanged)
         self.imageGallery.requestImages.connect(self.CBrequestImages)
         self.imageGallery.imageSelected.connect(self.CBimageSelected)
         self.metaBlock.tagChanged.connect(self.CBtagChanged)
@@ -97,6 +98,10 @@ class MainWindow(QMainWindow):
             print(f"MainWindows.resetGallery()")
 
         self.imageGallery.gallery.resetImages()
+
+    # OnImageChange
+    def onImageChanged(self, index: int, image: ndarray):
+        self.imageGallery.setImage(index, image)
 
     ## firstPage
     def firstPage(self: MainWindow):

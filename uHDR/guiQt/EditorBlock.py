@@ -34,6 +34,7 @@ from guiQt.ImageWidget import ImageWidget
 class EditorBlock(QSplitter):
     # class attributes
     ## signal
+    imageChanged = pyqtSignal(int, ndarray)
 
     # constructor
     def __init__(self: Self) -> None:
@@ -49,9 +50,15 @@ class EditorBlock(QSplitter):
         self.setSizes([20, 80])
 
         # Connection to changes
-        self.edit.updateRequested.connect(self.setImage)
+        self.edit.updateRequested.connect(self.onUpdateRequested)
 
     # methods
+    def onUpdateRequested(self, colorType: str, value: float):
+        index = 0
+        modified_image = self.imageWidget.imagePixmap.toImage()
+
+        self.imageChanged.emit(index, modified_image)
+
     ## setImage
     def setImage(self, image: ndarray | None):
         if image is not None:
