@@ -29,7 +29,7 @@ from app.Tags import Tags
 class Prefs:
     # class attributes
     # default values: updated when Prefs.load() is called
-    prefsFile: str = "uHDR\preferences\prefs.json"
+    prefsFile: str = ".\preferences\prefs.json"
     currentDir: str = "."
     imgExt: list[str] = [".jpg", ".hdr"]
     HDRdisplay: str = "none"
@@ -53,7 +53,7 @@ class Prefs:
     # static methods
     @staticmethod
     def load() -> None:
-        with open("uHDR\preferences\prefs.json") as f:
+        with open(".\preferences\prefs.json") as f:
             allPrefs: dict = json.load(f)
             if "imagePath" in allPrefs.keys():
                 Prefs.currentDir = allPrefs["imagePath"]
@@ -78,7 +78,7 @@ class Prefs:
 
                 for tagFile in listFileTags:
 
-                    with open(os.path.join("uHDR\preferences", tagFile)) as f:
+                    with open(os.path.join(".\preferences", tagFile)) as f:
                         tags: dict = json.load(f)
                         allTags.append(tags)
 
