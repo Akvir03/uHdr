@@ -56,7 +56,6 @@ class EditorBlock(QSplitter):
     def onUpdateRequested(self, colorType: str, value: float):
         index = 0
         modified_image = self.imageWidget.imagePixmap.toImage()
-
         self.imageChanged.emit(index, modified_image)
 
     ## setImage

@@ -49,6 +49,7 @@ class MainWindow(QMainWindow):
     tagChanged: pyqtSignal = pyqtSignal(tuple, bool)
     scoreChanged: pyqtSignal = pyqtSignal(int)
     scoreSelectionChanged: pyqtSignal = pyqtSignal(list)
+    imageChanged: pyqtSignal = pyqtSignal(int, ndarray)  # Signal send to App
 
     # constructor
     # -------------------------------------------------------------------------------------------
@@ -82,6 +83,7 @@ class MainWindow(QMainWindow):
         ## callbacks
         ### from AdvanceImageGallery
         self.editBlock.imageChanged.connect(self.onImageChanged)
+        self.editBlock.imageChanged.connect(self.imageChanged)  # Propagate the signal
         self.imageGallery.requestImages.connect(self.CBrequestImages)
         self.imageGallery.imageSelected.connect(self.CBimageSelected)
         self.metaBlock.tagChanged.connect(self.CBtagChanged)
