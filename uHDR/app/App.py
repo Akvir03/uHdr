@@ -90,7 +90,7 @@ class App:
         self.mainWindow.scoreChanged.connect(self.CBscoreChanged)
 
         self.mainWindow.scoreSelectionChanged.connect(self.CBscoreSelectionChanged)
-
+        self.mainWindow.imageChanged.connect(self.CBimageChanged)
         self.mainWindow.setPrefs()
 
     # methods
@@ -107,6 +107,19 @@ class App:
             )
 
         return self.mainWindow.imageGallery.getImageRangeIndex()
+
+    def CBimageChanged(self: App, index: int, image: ndarray) -> None:
+        """callback: called when an image is changed."""
+        if debug:
+            print(f"App.CBimageChanged(index={index}, image=...)")
+        # Mise à jour de l'image dans la gestion des images
+        self.imagesManagement.images[
+            self.imagesManagement.getImagesFilesnames()[index]
+        ] = image
+        # Envoyer l'image mise à jour au coeur de l'application
+        self.CBimageLoaded(self.imagesManagement.getImagesFilesnames()[index])
+        # Mettre à jour la galerie après modification
+        self.update()
 
     ##  update
     ## ----------------------------------------------------------------
