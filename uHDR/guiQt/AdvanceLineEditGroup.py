@@ -1,5 +1,5 @@
 # uHDR: HDR image editing software
-#   Copyright (C) 2022  remi cozot 
+#   Copyright (C) 2022  remi cozot
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -25,33 +25,38 @@ from guiQt.AdvanceFormLineEdit import AdvanceFormLineEdit
 # ------------------------------------------------------------------------------------------
 # --- AdvanceLineEditGroup(QWidget) --------------------------------------------------------
 # ------------------------------------------------------------------------------------------
-debug : bool = True
+debug: bool = True
+
+
 class AdvanceLineEditGroup(QScrollArea):
     # class attributes
-    
-    ## signal
-    textChanged : pyqtSignal = pyqtSignal(tuple)
 
-    def __init__(self : Self, dValues : dict[str, str|tuple[str, bool]]):
-        
+    ## signal
+    textChanged: pyqtSignal = pyqtSignal(tuple)
+
+    def __init__(self: Self, dValues: dict[str, str | tuple[str, bool]]):
+
         super().__init__()
 
         # attributes
-        self.active : bool = True
+        self.active: bool = True
         # widgets
-        self.lines : list[AdvanceFormLineEdit] =[]
+        self.lines: list[AdvanceFormLineEdit] = []
 
-        self.container : QWidget = QWidget()
-        self.layout : QFormLayout = QFormLayout() ; self.container.setLayout(self.layout)
+        self.container: QWidget = QWidget()
+        self.layout: QFormLayout = QFormLayout()
+        self.container.setLayout(self.layout)
 
         for tag in dValues.keys():
             if type(dValues[tag]) == str:
-                value  : str = dValues[tag] #type: ignore
-                editable : bool = True
+                value: str = dValues[tag]  # type: ignore
+                editable: bool = True
             else:
-                value : str = dValues[tag][0]
-                editable : bool = dValues[tag][1] #type: ignore
-            line : AdvanceFormLineEdit= AdvanceFormLineEdit(tag,value, self.layout, editable)
+                value: str = dValues[tag][0]
+                editable: bool = dValues[tag][1]  # type: ignore
+            line: AdvanceFormLineEdit = AdvanceFormLineEdit(
+                tag, value, self.layout, editable
+            )
             line.textChanged.connect(self.CBtextChanged)
             self.lines.append(line)
 
@@ -59,18 +64,20 @@ class AdvanceLineEditGroup(QScrollArea):
         self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.setWidgetResizable(True)
-        self.setWidget(self.container) 
+        self.setWidget(self.container)
 
     # methods
-    def setText(self: Self, texts : list[str]) -> None:
+    def setText(self: Self, texts: list[str]) -> None:
         assert len(texts) == len(self.lines)
-        for i, text in enumerate(texts): self.lines[i].setText(text)
+        for i, text in enumerate(texts):
+            self.lines[i].setText(text)
 
-    ## callback        
-    def CBtextChanged(self: Self, tag:str, value : str):
-        if debug : print(f'AdvanceLineEditGroup.CBtextChanged({tag},{value})[{self.active}]')
-        if self.active: 
-            self.textChanged.emit((tag,value))
+    ## callback
+    def CBtextChanged(self: Self, tag: str, value: str):
+        if debug:
+            print(f"AdvanceLineEditGroup.CBtextChanged({tag},{value})[{self.active}]")
+        if self.active:
+            self.textChanged.emit((tag, value))
+
+
 # ------------------------------------------------------------------------------
-
-

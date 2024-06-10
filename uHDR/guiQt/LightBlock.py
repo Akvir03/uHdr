@@ -1,5 +1,5 @@
 # uHDR: HDR image editing software
-#   Copyright (C) 2022  remi cozot 
+#   Copyright (C) 2022  remi cozot
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -18,13 +18,14 @@
 # ------------------------------------------------------------------------------------------
 from typing_extensions import Self
 from PyQt6.QtWidgets import QFrame, QVBoxLayout
-from PyQt6.QtGui import QDoubleValidator, QIntValidator 
+from PyQt6.QtGui import QDoubleValidator, QIntValidator
 from PyQt6.QtCore import Qt, pyqtSignal, QLocale
 
 from guiQt.AdvanceSlider import AdvanceSlider
 from guiQt.Contrast import Contrast
 from guiQt.CurveWidget import CurveWidget
 from guiQt.MemoGroup import MemoGroup
+
 
 # ------------------------------------------------------------------------------------------
 # --- class ColorEditor (QFrame) ------------------------------------------------------
@@ -34,27 +35,29 @@ class LightBlock(QFrame):
     ## signal
 
     # constructor
-    def __init__(self : Self) -> None:
+    def __init__(self: Self) -> None:
         super().__init__()
         self.setFrameShape(QFrame.Shape.StyledPanel)
 
         # attributes
-        self.active : bool = True
+        self.active: bool = True
 
         # layout and widgets
-        self.topLayout : QVBoxLayout = QVBoxLayout()
+        self.topLayout: QVBoxLayout = QVBoxLayout()
         self.setLayout(self.topLayout)
 
-        self.exposure : AdvanceSlider =AdvanceSlider('exposure',0.0,(-30,+30),(-3.0,+3.0),10)
-        self.contrast :  Contrast =Contrast()
-        self.curve :  CurveWidget =CurveWidget()
-        #self.memory : MemoGroup = MemoGroup()
+        self.exposure: AdvanceSlider = AdvanceSlider(
+            "exposure", 0.0, (-30, +30), (-3.0, +3.0), 10
+        )
+        self.contrast: Contrast = Contrast()
+        self.curve: CurveWidget = CurveWidget()
+        # self.memory : MemoGroup = MemoGroup()
 
         ## add to layout
         self.topLayout.addWidget(self.exposure)
         self.topLayout.addWidget(self.contrast)
         self.topLayout.addWidget(self.curve)
-        #self.topLayout.addWidget(self.memory)
+        # self.topLayout.addWidget(self.memory)
+
+
 # ------------------------------------------------------------------------------------------
-
-

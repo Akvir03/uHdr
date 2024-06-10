@@ -1,5 +1,5 @@
 # uHDR: HDR image editing software
-#   Copyright (C) 2022  remi cozot 
+#   Copyright (C) 2022  remi cozot
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -14,22 +14,29 @@
 # hdrCore project 2020-2022
 # author: remi.cozot@univ-littoral.fr
 
-# import 
+# import
 # -----------------------------------------------------------------------------
 from typing import Any
 from typing_extensions import Self
 
 from PyQt6.QtWidgets import QWidget, QLabel, QMainWindow, QSplitter, QFrame, QDockWidget
 from PyQt6.QtWidgets import QSplitter, QFrame, QSlider, QCheckBox, QGroupBox
-from PyQt6.QtWidgets import QHBoxLayout, QVBoxLayout, QGridLayout, QLayout, QScrollArea, QFormLayout
-from PyQt6.QtWidgets import QPushButton,QLineEdit, QComboBox, QSpinBox
+from PyQt6.QtWidgets import (
+    QHBoxLayout,
+    QVBoxLayout,
+    QGridLayout,
+    QLayout,
+    QScrollArea,
+    QFormLayout,
+)
+from PyQt6.QtWidgets import QPushButton, QLineEdit, QComboBox, QSpinBox
 from PyQt6.QtGui import QPixmap, QImage, QResizeEvent
 from PyQt6.QtCore import Qt
 import numpy as np
 
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
-from  matplotlib.axes import Axes
+from matplotlib.axes import Axes
 
 import time
 import math
@@ -39,22 +46,24 @@ import functools
 # --- class FigureWidget(FigureCanvas) -----------------------------------------------------
 # ------------------------------------------------------------------------------------------
 
-class FigureWidget(FigureCanvas):
-    """ Matplotlib Figure Widget  """
 
-    def __init__(self : Self, width : int = 5, height : int = 5):
+class FigureWidget(FigureCanvas):
+    """Matplotlib Figure Widget"""
+
+    def __init__(self: Self, width: int = 5, height: int = 5):
         # create Figure
-        self.fig  : Figure = Figure()
-        self.axes : Axes = self.fig.add_subplot(111) 
-        FigureCanvas.__init__(self, self.fig)    # explicite call of super constructor
+        self.fig: Figure = Figure()
+        self.axes: Axes = self.fig.add_subplot(111)
+        FigureCanvas.__init__(self, self.fig)  # explicite call of super constructor
         FigureCanvas.updateGeometry(self)
         self.setMinimumSize(200, 200)
 
-    def plot(self : Self ,X :np.ndarray , Y : np.ndarray, mode : str, clear :bool =False):
+    def plot(self: Self, X: np.ndarray, Y: np.ndarray, mode: str, clear: bool = False):
 
-        if clear: self.axes.clear()
-        self.axes.plot(X,Y,mode)
-        
+        if clear:
+            self.axes.clear()
+        self.axes.plot(X, Y, mode)
+
         try:
             self.fig.canvas.draw()
         except Exception:
@@ -63,15 +72,15 @@ class FigureWidget(FigureCanvas):
 
 
 # -------------------------------------------------------------------------------------------
-if __name__ == '__main__':
+if __name__ == "__main__":
     import sys
     from PyQt6.QtWidgets import QApplication
-    app : QApplication = QApplication(sys.argv)
-    iW : FigureWidget = FigureWidget()
+
+    app: QApplication = QApplication(sys.argv)
+    iW: FigureWidget = FigureWidget()
     iW.setMinimumHeight(500)
     iW.show()
-    iW.plot(np.array([0,1,1,0,0]),np.array([0,0,1,1,0]),'r--')
-    iW.plot(np.array([0.5]),np.array([0.5]),'b*')
+    iW.plot(np.array([0, 1, 1, 0, 0]), np.array([0, 0, 1, 1, 0]), "r--")
+    iW.plot(np.array([0.5]), np.array([0.5]), "b*")
 
     sys.exit(app.exec())
-

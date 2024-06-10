@@ -1,5 +1,5 @@
 # uHDR: HDR image editing software
-#   Copyright (C) 2022  remi cozot 
+#   Copyright (C) 2022  remi cozot
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -21,11 +21,12 @@ from typing_extensions import Self
 from numpy import ndarray
 
 from PyQt6.QtWidgets import QFrame, QVBoxLayout, QSplitter
-from PyQt6.QtGui import QDoubleValidator, QIntValidator 
+from PyQt6.QtGui import QDoubleValidator, QIntValidator
 from PyQt6.QtCore import Qt, pyqtSignal, QLocale
 
 from guiQt.Editor import Editor
 from guiQt.ImageWidget import ImageWidget
+
 
 # ------------------------------------------------------------------------------------------
 # --- class EditorBlock (QSplitter) ------------------------------------------------------
@@ -35,21 +36,19 @@ class EditorBlock(QSplitter):
     ## signal
 
     # constructor
-    def __init__(self:Self) -> None:
+    def __init__(self: Self) -> None:
         super().__init__(Qt.Orientation.Vertical)
 
         # attributes
-        self.imageWidget : ImageWidget = ImageWidget() 
-        self.edit : Editor = Editor()
+        self.imageWidget: ImageWidget = ImageWidget()
+        self.edit: Editor = Editor()
 
         # adding widgets to self (QSplitter)
         self.addWidget(self.imageWidget)
         self.addWidget(self.edit)
-        self.setSizes([20,80])
+        self.setSizes([20, 80])
 
     # methods
     ## setImage
     def setImage(self: Self, image: ndarray | None):
         self.imageWidget.setPixmap(image)
-
-        

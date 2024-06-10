@@ -1,5 +1,5 @@
 # uHDR: HDR image editing software
-#   Copyright (C) 2022  remi cozot 
+#   Copyright (C) 2022  remi cozot
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -18,61 +18,77 @@
 # ------------------------------------------------------------------------------------------
 import numpy as np, copy
 from typing_extensions import Self
-from PyQt6.QtWidgets import QFrame, QVBoxLayout, QHBoxLayout, QSlider, QLabel, QLineEdit, QPushButton
+from PyQt6.QtWidgets import (
+    QFrame,
+    QVBoxLayout,
+    QHBoxLayout,
+    QSlider,
+    QLabel,
+    QLineEdit,
+    QPushButton,
+)
 from PyQt6.QtCore import pyqtSignal, Qt
 from PyQt6.QtGui import QIntValidator
 
 from guiQt.ImageWidget import ImageWidget
 
+
 # ------------------------------------------------------------------------------------------
 class ChannelSelector(QFrame):
     # class attributes
     ## signal
-    valuesChanged : pyqtSignal = pyqtSignal(str,int, int)
-    def __init__(self : Self, name : str, colourDataRGB : np.ndarray, range :tuple[int,int], default : tuple[int,int]  ) -> None:
+    valuesChanged: pyqtSignal = pyqtSignal(str, int, int)
+
+    def __init__(
+        self: Self,
+        name: str,
+        colourDataRGB: np.ndarray,
+        range: tuple[int, int],
+        default: tuple[int, int],
+    ) -> None:
         super().__init__()
         self.setFrameShape(QFrame.Shape.StyledPanel)
 
         # attributes
-        self.name : str = name
-        self.default : tuple[int,int] = default
-        self.values : tuple[int,int] = copy.deepcopy(default)
-        self.active : bool = True
+        self.name: str = name
+        self.default: tuple[int, int] = default
+        self.values: tuple[int, int] = copy.deepcopy(default)
+        self.active: bool = True
 
         # layout
-        self.vbox : QVBoxLayout= QVBoxLayout()
+        self.vbox: QVBoxLayout = QVBoxLayout()
         self.setLayout(self.vbox)
         # container, layout: label and values
-        self.labelValues : QFrame = QFrame()
-        self.hbox : QHBoxLayout = QHBoxLayout()
+        self.labelValues: QFrame = QFrame()
+        self.hbox: QHBoxLayout = QHBoxLayout()
         self.labelValues.setLayout(self.hbox)
         self.labelSelector = QLabel(name)
 
-        self.label : QLabel =QLabel(name)
-        self.min : QLineEdit = QLineEdit()
+        self.label: QLabel = QLabel(name)
+        self.min: QLineEdit = QLineEdit()
         self.min.setValidator(QIntValidator())
         self.min.setText(str(default[0]))
 
-        self.max : QLineEdit = QLineEdit()
+        self.max: QLineEdit = QLineEdit()
         self.min.setValidator(QIntValidator())
         self.max.setText(str(default[1]))
 
-        self.reset : QPushButton = QPushButton('reset')
+        self.reset: QPushButton = QPushButton("reset")
 
         self.hbox.addWidget(self.label)
         self.hbox.addStretch()
-        self.hbox.addWidget(QLabel('min:'))
+        self.hbox.addWidget(QLabel("min:"))
         self.hbox.addWidget(self.min)
-        self.hbox.addWidget(QLabel('max:'))
+        self.hbox.addWidget(QLabel("max:"))
         self.hbox.addWidget(self.max)
         self.hbox.addStretch()
         self.hbox.addWidget(self.reset)
 
         # image
-        self.imageWidget : ImageWidget = ImageWidget()
-        self.imageWidget.setMinimumSize(2, 22) #2,72
+        self.imageWidget: ImageWidget = ImageWidget()
+        self.imageWidget.setMinimumSize(2, 22)  # 2,72
         self.imageWidget.setPixmap(colourDataRGB)
-        
+
         # slider min
         self.sliderMin = QSlider(Qt.Orientation.Horizontal)
         self.sliderMin.setRange(*range)
@@ -98,18 +114,19 @@ class ChannelSelector(QFrame):
         self.reset.clicked.connect(self.CBreset)
 
     # methods
-    def sliderValues(self:Self) -> tuple[int,int]:
-        min : int = self.sliderMin.value()
-        max :int = self.sliderMax.value()
+    def sliderValues(self: Self) -> tuple[int, int]:
+        min: int = self.sliderMin.value()
+        max: int = self.sliderMax.value()
         return (min, max)
 
     # setValues
-    def setValues(self : Self, min :int,max:int) -> None:
+    def setValues(self: Self, min: int, max: int) -> None:
         self.active = False
         if min > max:
-            temp : int = temp
-            min = max ; max = temp
-        self.values = (min,max)
+            temp: int = temp
+            min = max
+            max = temp
+        self.values = (min, max)
         self.sliderMin.setValue(min)
         self.sliderMax.setValue(max)
         self.min.setText(str(min))
@@ -118,44 +135,46 @@ class ChannelSelector(QFrame):
         self.active = True
 
     # getValues
-    def getValues(self:Self) -> tuple[int, int]: return self.sliderValues()
+    def getValues(self: Self) -> tuple[int, int]:
+        return self.sliderValues()
 
     ## callbacks
-    def CBreset(self : Self) -> None :
+    def CBreset(self: Self) -> None:
         self.values = copy.deepcopy(self.default)
         self.setValues(*self.values)
-        self.valuesChanged.emit(self.name,*self.values)
+        self.valuesChanged.emit(self.name, *self.values)
 
-    def CBsliderMin(self:Self) -> None:
-        if self.active: 
+    def CBsliderMin(self: Self) -> None:
+        if self.active:
             min, max = self.sliderValues()
-            min = min if min<= max else max
-            self.values = (min,max)
-            self.setValues(min,max)
-            self.valuesChanged.emit(self.name,*self.values)
+            min = min if min <= max else max
+            self.values = (min, max)
+            self.setValues(min, max)
+            self.valuesChanged.emit(self.name, *self.values)
 
-    def CBsliderMax(self:Self) -> None:
-        if self.active :
+    def CBsliderMax(self: Self) -> None:
+        if self.active:
             min, max = self.sliderValues()
-            max = max if min<= max else min
-            self.values = (min,max)
-            self.setValues(min,max)
-            self.valuesChanged.emit(self.name,*self.values)
+            max = max if min <= max else min
+            self.values = (min, max)
+            self.setValues(min, max)
+            self.valuesChanged.emit(self.name, *self.values)
 
-    def CBminEdited(self : Self) -> None :
-        if self.active :
-            min : int = int(self.min.text())
-            min = min if min<= self.values[1] else self.values[1]
-            self.values = (min,self.values[1])
-            self.setValues(*self.values) 
-            self.valuesChanged.emit(self.name,*self.values)
+    def CBminEdited(self: Self) -> None:
+        if self.active:
+            min: int = int(self.min.text())
+            min = min if min <= self.values[1] else self.values[1]
+            self.values = (min, self.values[1])
+            self.setValues(*self.values)
+            self.valuesChanged.emit(self.name, *self.values)
 
-    def CBmaxEdited(self : Self) -> None :
-        if self.active :
-            max : int = int(self.max.text())
+    def CBmaxEdited(self: Self) -> None:
+        if self.active:
+            max: int = int(self.max.text())
             max = max if self.values[0] <= max else self.values[0]
-            self.values = (self.values[0],max)
-            self.setValues(*self.values)        
-            self.valuesChanged.emit(self.name,*self.values)
-# -------------------------------------------------------------------------
+            self.values = (self.values[0], max)
+            self.setValues(*self.values)
+            self.valuesChanged.emit(self.name, *self.values)
 
+
+# -------------------------------------------------------------------------

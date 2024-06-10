@@ -1,1 +1,1 @@
-{"lighting": {"Average interior": false, "Backlit": false}}
+{"lighting": {"Average interior": false, "Backlit": false, "Bright interior": false, "Bright outdoor": false, "Dark interior": false, "Night": false, "Sunset": false, "Cloudy outdoor": true}, "location": {"Outside": false}, "scene": {"Architecture": false, "Interior": false}}

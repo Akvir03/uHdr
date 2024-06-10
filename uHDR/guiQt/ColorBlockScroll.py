@@ -1,5 +1,5 @@
 # uHDR: HDR image editing software
-#   Copyright (C) 2022  remi cozot 
+#   Copyright (C) 2022  remi cozot
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -18,10 +18,11 @@
 # ------------------------------------------------------------------------------------------
 from typing_extensions import Self
 from PyQt6.QtWidgets import QWidget, QScrollArea, QVBoxLayout, QPushButton, QMainWindow
-from PyQt6.QtGui import QDoubleValidator, QIntValidator 
+from PyQt6.QtGui import QDoubleValidator, QIntValidator
 from PyQt6.QtCore import Qt, pyqtSignal, QLocale, QSize
 
 from guiQt.ColorEditorBlock import ColorEditorBlock
+
 
 # ------------------------------------------------------------------------------------------
 # --- class ColorBlockScroll (QWidget) -----------------------------------------------------
@@ -31,21 +32,19 @@ class ColorBlockScroll(QScrollArea):
     ## signal
 
     # constructor
-    def __init__(self : Self) -> None:
+    def __init__(self: Self) -> None:
         super().__init__()
 
-
         ## lightblock widget
-        self.light : ColorEditorBlock = ColorEditorBlock()
-        self.light.setMinimumSize(500,1200)
+        self.light: ColorEditorBlock = ColorEditorBlock()
+        self.light.setMinimumSize(500, 1200)
 
         ## Scroll Area Properties
         self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        self.setWidgetResizable(True) 
+        self.setWidgetResizable(True)
 
         self.setWidget(self.light)
 
+
 # ------------------------------------------------------------------------------------------
-
-
