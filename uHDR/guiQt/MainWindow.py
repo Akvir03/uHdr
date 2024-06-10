@@ -49,7 +49,7 @@ class MainWindow(QMainWindow):
     tagChanged: pyqtSignal = pyqtSignal(tuple, bool)
     scoreChanged: pyqtSignal = pyqtSignal(int)
     scoreSelectionChanged: pyqtSignal = pyqtSignal(list)
-    imageChanged: pyqtSignal = pyqtSignal(int, ndarray)  # Signal send to App
+    imageChanged: pyqtSignal = pyqtSignal(int, ndarray)
 
     # constructor
     # -------------------------------------------------------------------------------------------
@@ -83,7 +83,6 @@ class MainWindow(QMainWindow):
         ## callbacks
         ### from AdvanceImageGallery
         self.editBlock.imageChanged.connect(self.onImageChanged)
-        self.editBlock.imageChanged.connect(self.imageChanged)  # Propagate signal
         self.imageGallery.requestImages.connect(self.CBrequestImages)
         self.imageGallery.imageSelected.connect(self.CBimageSelected)
         self.metaBlock.tagChanged.connect(self.CBtagChanged)
@@ -102,8 +101,9 @@ class MainWindow(QMainWindow):
         self.imageGallery.gallery.resetImages()
 
     # OnImageChange
-    def onImageChanged(self, index: int, image: ndarray):
+    def onImageChanged(self: Self, index: int, image: ndarray):
         self.imageGallery.setImage(index, image)
+        self.imageChanged.emit(index, image)
 
     ## firstPage
     def firstPage(self: MainWindow):
@@ -155,7 +155,7 @@ class MainWindow(QMainWindow):
         self.imageGallery.setSize(preferences.Prefs.Prefs.gallerySize)
 
     ## menu
-    def buildFileMenu(self):
+    def buildFileMenu(self: Self):
         menubar = self.menuBar()  # get menubar
         fileMenu = menubar.addMenu("&File")  # file menu
 
@@ -180,7 +180,7 @@ class MainWindow(QMainWindow):
     ## callbacks
     ## -------------------------------------------------------------------
     ### select dir
-    def CBSelectDir(self):
+    def CBSelectDir(self: Self):
         dirName = QFileDialog.getExistingDirectory(None, "Select Directory")
         if dirName != "":
             self.dirSelected.emit(dirName)
@@ -200,13 +200,13 @@ class MainWindow(QMainWindow):
         self.imageSelected.emit(idx)
 
     # -----------------------------------------------------------------
-    def CBtagChanged(self, key: tuple[str, str], value: bool) -> None:
+    def CBtagChanged(self: Self, key: tuple[str, str], value: bool) -> None:
         if debug:
             print(f"guiQt.MainWindow.CBtagChanged({key},{value}) > emit !")
         self.tagChanged.emit(key, value)
 
     # -----------------------------------------------------------------
-    def CBscoreChanged(self, value: int) -> None:
+    def CBscoreChanged(self: Self, value: int) -> None:
         if debug:
             print(f"guiQt.MainWindow.CBscoreChanged({value}) > emit !")
         self.scoreChanged.emit(value)
@@ -216,6 +216,3 @@ class MainWindow(QMainWindow):
         if debug:
             print(f"guiQt.MainWindow.CBscoreSelectionChanged({scoreSelection})")
         self.scoreSelectionChanged.emit(scoreSelection)
-
-
-# ------------------------------------------------------------------------------------------

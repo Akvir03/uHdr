@@ -90,20 +90,3 @@ class ImageWidget(QWidget):
     @staticmethod
     def emptyImageColorData() -> np.ndarray:
         return np.ones((90, 160, 3)) * (220 / 255)
-
-
-# -------------------------------------------------------------------------------------------
-if __name__ == "__main__":
-    from matplotlib.pyplot import imread
-    import sys
-    from PyQt6.QtWidgets import QApplication
-
-    img: np.ndarray = (
-        imread("C:/Users/rcozo/Dropbox/dev/copoc/images/maximus/4.jpg") / 255
-    )
-    app: QApplication = QApplication(sys.argv)
-    iW: ImageWidget = ImageWidget()
-    iW.setMinimumHeight(55)
-    iW.show()
-
-    sys.exit(app.exec())

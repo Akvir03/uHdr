@@ -3,10 +3,10 @@
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
+#    the Free Software Foundation, either version 3 of the License, ou
 #    (at your option) any later version.
 #
-#    This program is distributed in the hope that it will be useful,
+#    This program is distributed in the hope that it will be utile,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
@@ -17,12 +17,10 @@
 # import
 # ------------------------------------------------------------------------------------------
 from typing_extensions import Self
-
-import numpy
 from numpy import ndarray
 
 from PyQt6.QtWidgets import QFrame, QVBoxLayout, QSplitter
-from PyQt6.QtGui import QDoubleValidator, QIntValidator, QPixmap
+from PyQt6.QtGui import QDoubleValidator, QIntValidator
 from PyQt6.QtCore import Qt, pyqtSignal, QLocale
 
 from guiQt.Editor import Editor
@@ -34,7 +32,7 @@ from guiQt.ImageWidget import ImageWidget
 # ------------------------------------------------------------------------------------------
 class EditorBlock(QSplitter):
     # class attributes
-    imageChanged = pyqtSignal(int, ndarray)  # Ajoutez le signal ici
+    imageChanged = pyqtSignal(int, ndarray)
 
     # constructor
     def __init__(self: Self) -> None:
@@ -50,7 +48,7 @@ class EditorBlock(QSplitter):
         self.setSizes([20, 80])
 
         # Connection to changes
-        self.edit.updateRequested.connect(self.onColorChanged)
+        self.edit.updateRequested.connect(self.setImage)
 
     # methods
     ## setImage
@@ -63,24 +61,41 @@ class EditorBlock(QSplitter):
 
     def onColorChanged(self, colorType: str, value: float):
         print(f"EditorBlock received color change: {colorType} -> {value}")
-        # Exemple de traitement de l'image
-        pixmap = self.imageWidget.imagePixmap
-        updated_image = self.applyColorChange(pixmap, colorType, value)
-        # Conversion de QPixmap à ndarray
-        updated_image_array = self.qpixmap_to_array(updated_image)
-        # Émission du signal
-        self.imageChanged.emit(0, updated_image_array)
+        # Assuming we have a method to update the image based on color changes
+        updated_image = self.updateImage(self.imageWidget.imagePixmap, colorType, value)
+        # Emit signal with updated image
+        index = 0  # Assuming we are working with a single image for simplicity
+        self.imageChanged.emit(index, updated_image)
 
-    def applyColorChange(self, pixmap, colorType, value):
-        # Placeholder for actual color change logic
-        return pixmap
+    def updateImage(
+        self, currentImage: ndarray, colorType: str, value: float
+    ) -> ndarray:
+        # Implement the logic to update the image based on the color change
+        # This is a placeholder and should be replaced with actual image processing code
+        # For example, apply contrast, hue, saturation changes, etc.
+        new_image = currentImage.copy()
+        if colorType == "contrast":
+            new_image = self.applyContrast(new_image, value)
+        elif colorType == "hue":
+            new_image = self.applyHue(new_image, value)
+        elif colorType == "saturation":
+            new_image = self.applySaturation(new_image, value)
+        elif colorType == "exposure":
+            new_image = self.applyExposure(new_image, value)
+        return new_image
 
-    ## setImage
-    def qpixmap_to_array(self, pixmap: QPixmap) -> ndarray:
-        size = pixmap.size()
-        h = size.height()
-        w = size.width()
-        qimg = pixmap.toImage()
-        byte_str = qimg.bits().asstring(h * w * 4)
-        img = numpy.frombuffer(byte_str, dtype=numpy.uint8).reshape((h, w, 4))
-        return img[:, :, :3]
+    def applyContrast(self, image: ndarray, value: float) -> ndarray:
+        # Example contrast adjustment (placeholder)
+        return image * (1 + value)
+
+    def applyHue(self, image: ndarray, value: float) -> ndarray:
+        # Example hue adjustment (placeholder)
+        return image
+
+    def applySaturation(self, image: ndarray, value: float) -> ndarray:
+        # Example saturation adjustment (placeholder)
+        return image
+
+    def applyExposure(self, image: ndarray, value: float) -> ndarray:
+        # Example exposure adjustment (placeholder)
+        return image * (1 + value)

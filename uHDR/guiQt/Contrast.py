@@ -1,3 +1,4 @@
+# Contrast.py
 # uHDR: HDR image editing software
 #   Copyright (C) 2022  remi cozot
 #
@@ -30,7 +31,6 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtCore import pyqtSignal, Qt
 from PyQt6.QtGui import QIntValidator
-
 
 from guiQt.AdvanceSliderLine import AdvanceSliderLine
 from guiQt.ChannelSelector import ChannelSelector
@@ -119,13 +119,13 @@ class Contrast(QFrame):
         self.offsetlider.valueChanged.connect(self.on_value_changed)
 
     # methods
+    def on_value_changed(self, value: float) -> None:
+        self.valueChanged.emit(value)
+
     ## callbacks
     def CBlightnessSelctionChanged(self: Self) -> None:
         self.LightnessRange = self.lightnessSelector.getValues()
         self.updateView()
-
-    def on_value_changed(self: Self, value: float) -> None:
-        self.valueChanged.emit(value)
 
     # update view
     def updateView(self: Self) -> None:
