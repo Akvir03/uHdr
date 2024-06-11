@@ -27,6 +27,11 @@ from .ImageFIles import ImageFiles
 from app.Tags import Tags
 from app.SelectionMap import SelectionMap
 
+# Importation des modules nécessaires du cœur de la V6
+from core.image import Image
+from core.processing import ProcessPipe
+from core.coreC import coreCcompute
+
 # ------------------------------------------------------------------------------------------
 # --- class App ----------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------
@@ -116,8 +121,29 @@ class App:
         self.imagesManagement.images[
             self.imagesManagement.getImagesFilesnames()[index]
         ] = image
-        # Envoyer l'image mise à jour au coeur de l'application
+
+        # Convertir l'image ndarray en instance de Image pour le cœur V6
+        img_instance = Image(colorData=image)
+
+        # Créer et configurer un ProcessPipe
+        process_pipe = ProcessPipe()
+        process_pipe.setImage(img_instance)
+
+        # Exécuter le traitement avec coreCcompute
+        processed_image = coreCcompute(img_instance, process_pipe)
+
+        # Vérifier et ajuster les valeurs de pixel pour éviter les images blanches
+        processed_image.colorData[processed_image.colorData > 1.0] = 1.0
+        processed_image.colorData[processed_image.colorData < 0.0] = 0.0
+
+        # Mettre à jour l'image traitée dans la gestion des images
+        self.imagesManagement.images[
+            self.imagesManagement.getImagesFilesnames()[index]
+        ] = processed_image.colorData
+
+        # Mettre à jour l'image chargée
         self.CBimageLoaded(self.imagesManagement.getImagesFilesnames()[index])
+
         # Mettre à jour la galerie après modification
         self.update()
 
@@ -162,10 +188,8 @@ class App:
         imagesFilenames: list[str] = self.imagesManagement.getImagesFilesnames()
 
         for sIdx in range(minIdx, maxIdx + 1):
-
             gIdx: int | None = self.selectionMap.selectedlIndexToGlobalIndex(sIdx)
-
-            if gIdx != None:
+            if gIdx is not None:
                 self.imagesManagement.requestLoad(imagesFilenames[gIdx])
             else:
                 self.mainWindow.setGalleryImage(sIdx, None)
@@ -184,7 +208,6 @@ class App:
     #### image selected
     #### -----------------------------------------------------------------
     def CBimageSelected(self: App, index: int) -> None:
-
         self.selectedImageIdx = index  # index in selection
 
         gIdx: int | None = self.selectionMap.selectedlIndexToGlobalIndex(
@@ -192,7 +215,6 @@ class App:
         )  # global index
 
         if gIdx is not None:
-
             image: ndarray = self.imagesManagement.getImage(
                 self.imagesManagement.getImagesFilesnames()[gIdx]
             )
@@ -225,7 +247,6 @@ class App:
     #### tag changed
     #### -----------------------------------------------------------------
     def CBtagChanged(self: App, key: tuple[str, str], value: bool) -> None:
-
         if self.selectedImageIdx is not None:
             imageName: str | None = self.selectionMap.selectedIndexToImageName(
                 self.selectedImageIdx
@@ -238,12 +259,10 @@ class App:
     #### score changed
     #### -----------------------------------------------------------------
     def CBscoreChanged(self: App, value: int) -> None:
-
         if self.selectedImageIdx is not None:
             imageName: str | None = self.selectionMap.selectedIndexToImageName(
                 self.selectedImageIdx
             )
-
             if imageName is not None:
                 self.imagesManagement.updateImageScore(imageName, value)
 
