@@ -131,8 +131,7 @@ class App:
 
         # Exécuter le traitement avec coreCcompute
         processed_image = coreCcompute(img_instance, process_pipe)
-
-        # Vérifier et ajuster les valeurs de pixel pour éviter les images blanches
+        print(processed_image)
         processed_image.colorData[processed_image.colorData > 1.0] = 1.0
         processed_image.colorData[processed_image.colorData < 0.0] = 0.0
 

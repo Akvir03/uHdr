@@ -39,7 +39,6 @@ from . import image, utils, aesthetics
 import app.App as gc
 import preferences.Prefs as pref
 from timeit import default_timer as timer
-
 import core.coreC
 
 
