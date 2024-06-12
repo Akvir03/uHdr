@@ -1,6 +1,5 @@
-# Contrast.py
 # uHDR: HDR image editing software
-#   Copyright (C) 2022  remi cozot
+#   Copyright (C) 2022  remi cozot 
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -19,95 +18,74 @@
 # ------------------------------------------------------------------------------------------
 import numpy as np, copy
 from typing_extensions import Self
-from PyQt6.QtWidgets import (
-    QFrame,
-    QVBoxLayout,
-    QHBoxLayout,
-    QSlider,
-    QLabel,
-    QLineEdit,
-    QCheckBox,
-    QWidget,
-)
+from PyQt6.QtWidgets import QFrame, QVBoxLayout, QHBoxLayout, QSlider, QLabel, QLineEdit, QCheckBox, QWidget
 from PyQt6.QtCore import pyqtSignal, Qt
 from PyQt6.QtGui import QIntValidator
+
 
 from guiQt.AdvanceSliderLine import AdvanceSliderLine
 from guiQt.ChannelSelector import ChannelSelector
 
 from core import colourData, colourSpace
 
-
 # ------------------------------------------------------------------------------------------
 class Contrast(QFrame):
     # class attributes
-    valueChangedContrast = pyqtSignal(float)
-    valueChangedOffSet = pyqtSignal(float)
 
     # constructor
-    def __init__(self: Self) -> None:
+    def __init__(self : Self) -> None:
         super().__init__()
         self.setFrameShape(QFrame.Shape.StyledPanel)
         # attributes
-        self.active: bool = True
+        self.active : bool = True
 
         ## lightness range
-        self.LightnessRange: tuple[int, int] = (0, 200)
+        self.LightnessRange : tuple[int, int] = (0,200)
 
         ## contrast scaling
-        self.scaling: float = 1.0
+        self.scaling : float = 1.0
 
         ## contrast offset
-        self.offset: float = 0.0
+        self.offset : float = 0.0
 
         ## layout
-        self.topLayout: QVBoxLayout = QVBoxLayout()
+        self.topLayout : QVBoxLayout = QVBoxLayout()
         self.setLayout(self.topLayout)
 
         ### container constrast active
-        self.containerContrastActive: QWidget = QWidget()
-        self.containerContrastActiveLayout: QHBoxLayout = QHBoxLayout()
+        self.containerContrastActive : QWidget = QWidget()
+        self.containerContrastActiveLayout : QHBoxLayout = QHBoxLayout()
         self.containerContrastActive.setLayout(self.containerContrastActiveLayout)
 
-        self.contrastLabel: QLabel = QLabel("contrast")
+        self.contrastLabel : QLabel = QLabel('contrast')
 
-        self.checkBoxActive: QCheckBox = QCheckBox("active")
-        self.checkBoxActive.setChecked(True)
+        self.checkBoxActive : QCheckBox = QCheckBox("active")
+        self.checkBoxActive.setChecked(True)  
 
-        self.containerContrastActiveLayout.addWidget(self.contrastLabel)
-        self.containerContrastActiveLayout.addStretch()
-        self.containerContrastActiveLayout.addWidget(self.checkBoxActive)
+        self.containerContrastActiveLayout.addWidget(self.contrastLabel)      
+        self.containerContrastActiveLayout.addStretch()      
+        self.containerContrastActiveLayout.addWidget(self.checkBoxActive)      
 
         ## container scaling, offset
-        self.containerScalingOffset: QFrame = QFrame()
+        self.containerScalingOffset : QFrame = QFrame()
         self.containerScalingOffset.setFrameShape(QFrame.Shape.StyledPanel)
-        self.containerScalingOffsetLayout: QVBoxLayout = QVBoxLayout()
+        self.containerScalingOffsetLayout : QVBoxLayout = QVBoxLayout()
         self.containerScalingOffset.setLayout(self.containerScalingOffsetLayout)
-
+        
         ### contrast scaling, offset
-        self.scalingSlider: AdvanceSliderLine = AdvanceSliderLine(
-            "scaling", 0.0, (-10, 10), (-5.0, 5.0), 8, 100
-        )
-        self.offsetlider: AdvanceSliderLine = AdvanceSliderLine(
-            "offset", 0.0, (-10, 10), (-5.0, 5.0), 8, 100
-        )
+        self.scalingSlider : AdvanceSliderLine = AdvanceSliderLine('scaling',0.0,(-10,10),(-5.0,5.0),8,100)
+        self.offsetlider : AdvanceSliderLine = AdvanceSliderLine('offset',0.0,(-10,10),(-5.0,5.0),8,100)
+       
+        self.containerScalingOffsetLayout.addWidget(self.scalingSlider)        
+        self.containerScalingOffsetLayout.addWidget(self.offsetlider)        
 
-        self.containerScalingOffsetLayout.addWidget(self.scalingSlider)
-        self.containerScalingOffsetLayout.addWidget(self.offsetlider)
-
-        ### lightness
-        lightnessBarLch: np.ndarray = colourData.buildLchcolourData(
-            (0, 200), (0, 0), (180, 180), (20, 720), width="L", height="c"
-        )
-        lightnessBarRGB: np.ndarray = colourSpace.Lch_to_sRGB(
-            lightnessBarLch, apply_cctf_encoding=True, clip=True
-        )
-        self.lightnessSelector: ChannelSelector = ChannelSelector(
-            "lightness", lightnessBarRGB, (0, 200), (0, 150)
-        )
+        ### lightness  
+        lightnessBarLch : np.ndarray = colourData.buildLchcolourData((0,200), (0,0), (180,180), (20,720), width='L', height='c')
+        lightnessBarRGB : np.ndarray = colourSpace.Lch_to_sRGB(lightnessBarLch,apply_cctf_encoding=True, clip=True)
+        self.lightnessSelector : ChannelSelector = ChannelSelector('lightness',lightnessBarRGB, (0,200),(0,150)) 
 
         ### show selction
-        self.showSelection: QCheckBox = QCheckBox("show selction")
+        self.showSelection : QCheckBox = QCheckBox("show selction")
 
         ### add widget to layout
         self.topLayout.addWidget(self.containerContrastActive)
@@ -116,16 +94,8 @@ class Contrast(QFrame):
 
         ## calbacks
         self.lightnessSelector.valuesChanged.connect(self.CBlightnessSelctionChanged)
-        self.scalingSlider.valueChanged.connect(self.on_value_changed_constrast)
-        self.offsetlider.valueChanged.connect(self.on_value_changed_offset)
 
     # methods
-    def on_value_changed_constrast(self, value: float) -> None:
-        self.valueChangedContrast.emit(value)
-
-    def on_value_changed_offset(self, value: float) -> None:
-        self.valueChangedOffSet.emit(value)
-
     ## callbacks
     def CBlightnessSelctionChanged(self: Self) -> None:
         self.LightnessRange = self.lightnessSelector.getValues()

@@ -1,5 +1,5 @@
 # uHDR: HDR image editing software
-#   Copyright (C) 2022  remi cozot
+#   Copyright (C) 2022  remi cozot 
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -26,7 +26,8 @@ from PyQt6.QtWidgets import QFileDialog
 class DirSelctor:
 
     def callBackSelectDir(self):
-        """Callback of export HDR menu: open file dialog, store image filenames (self.imagesName), set directory to model"""
+        """Callback of export HDR menu: open file dialog, store image filenames (self.imagesName), set directory to model
+        """
         pass
         # if pref.verbose: print(" [CONTROL] >> AppController.callBackSelectDir()")
         # dirName = QFileDialog.getExistingDirectory(None, 'Select Directory', self.model.directory)

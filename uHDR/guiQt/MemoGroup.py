@@ -1,5 +1,5 @@
 # uHDR: HDR image editing software
-#   Copyright (C) 2022  remi cozot
+#   Copyright (C) 2022  remi cozot 
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -13,19 +13,17 @@
 #
 # hdrCore project 2020-2022
 # author: remi.cozot@univ-littoral.fr
-
+ 
 # import
 import sys
 from typing_extensions import Self
 from PyQt6.QtWidgets import QFrame, QPushButton, QTextEdit, QVBoxLayout, QLabel
 from PyQt6.QtCore import Qt, pyqtSignal, QLocale
 from guiQt.MemoLine import MemoLine
-
-
 # ------------------------------------------------------------------------------------------
 # --- class MemoGroup(QFrame) ---------------------------------------------------------------
 # ------------------------------------------------------------------------------------------
-class MemoGroup(QFrame):
+class MemoGroup (QFrame):
     # class attributes
     ## signal
 
@@ -36,16 +34,16 @@ class MemoGroup(QFrame):
 
         # attributes
         ## layout and widgets
-        self.topLayout: QVBoxLayout = QVBoxLayout()
+        self.topLayout : QVBoxLayout = QVBoxLayout()
         self.setLayout(self.topLayout)
 
-        self.mem0: MemoLine = MemoLine("slot[0]")
-        self.mem1: MemoLine = MemoLine("slot[1]")
-        self.memTextEdit: QTextEdit = QTextEdit("message")
+        self.mem0 : MemoLine = MemoLine('slot[0]')
+        self.mem1 : MemoLine = MemoLine('slot[1]')
+        self.memTextEdit : QTextEdit = QTextEdit('message')
 
         self.topLayout.addWidget(self.mem0)
         self.topLayout.addWidget(self.mem1)
         self.topLayout.addWidget(self.memTextEdit)
-
-
 # ------------------------------------------------------------------------------------------
+
+

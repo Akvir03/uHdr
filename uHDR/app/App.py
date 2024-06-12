@@ -23,14 +23,9 @@ from app.Jexif import Jexif
 import math
 import preferences.Prefs
 from guiQt.MainWindow import MainWindow
-from .ImageFIles import ImageFiles
+from app.ImageFIles import ImageFiles
 from app.Tags import Tags
 from app.SelectionMap import SelectionMap
-
-# Importation des modules nécessaires du cœur de la V6
-from core.image import Image
-from core.processing import ProcessPipe
-from core.coreC import coreCcompute
 
 # ------------------------------------------------------------------------------------------
 # --- class App ----------------------------------------------------------------------------
@@ -95,9 +90,6 @@ class App:
         self.mainWindow.scoreChanged.connect(self.CBscoreChanged)
 
         self.mainWindow.scoreSelectionChanged.connect(self.CBscoreSelectionChanged)
-        self.mainWindow.editBlock.edit.lightEdit.light.contrast.valueChangedContrast.connect(
-            self.CBContrastSliderChanged
-        )
         self.mainWindow.editBlock.edit.lightEdit.light.exposure.valueChanged.connect(
             self.CBExposureSliderChanged
         )
@@ -108,37 +100,10 @@ class App:
 
     ##  getImageRangeIndex
     ## ----------------------------------------------------------------
-    def getImageRangeIndex(self: Self) -> tuple[int, int]:
+    def getImageRangeIndex(self: App) -> tuple[int, int]:
         """return the index range (min index, max index) of images displayed by the gallery."""
 
-        if debug:
-            print(
-                f"App.getImageRangeIndex() -> {self.mainWindow.imageGallery.getImageRangeIndex()} "
-            )
-
         return self.mainWindow.imageGallery.getImageRangeIndex()
-
-    def CBContrastSliderChanged(self: App, value: float) -> None:
-        index = self.selectionMap.selectedlIndexToGlobalIndex(self.selectedImageIdx)
-        if index is None:
-            return
-        self.imagesManagement.getImage(
-            self.imagesManagement.getImagesFilesnames()[index]
-        )
-        # Formule à ajouter
-
-    def CBExposureSliderChanged(self: App, value: float, active: bool) -> None:
-        if not active:
-            return
-        index = self.selectionMap.selectedlIndexToGlobalIndex(self.selectedImageIdx)
-        if index is None:
-            return
-        image = self.imagesManagement.getImage(
-            self.imagesManagement.getImagesFilesnames()[index]
-        )
-        image = image * math.pow(2, value)
-        self.mainWindow.setEditorImage(image)
-        self.mainWindow.imageGallery.setImage(self.selectedImageIdx, image)
 
     ##  update
     ## ----------------------------------------------------------------
@@ -173,6 +138,19 @@ class App:
         self.mainWindow.setNumberImages(self.imagesManagement.getNbImages())
         self.mainWindow.firstPage()
 
+    def CBExposureSliderChanged(self: App, value: float, active: bool) -> None:
+        if not active:
+            return
+        index = self.selectionMap.selectedlIndexToGlobalIndex(self.selectedImageIdx)
+        if index is None:
+            return
+        image = self.imagesManagement.getImage(
+            self.imagesManagement.getImagesFilesnames()[index]
+        )
+        image = image * math.pow(2, value)
+        self.mainWindow.setEditorImage(image)
+        self.mainWindow.imageGallery.setImage(self.selectedImageIdx, image)
+
     #### request image: zoom or page changed
     #### -----------------------------------------------------------------
     def CBrequestImages(self: App, minIdx: int, maxIdx: int) -> None:
@@ -181,33 +159,37 @@ class App:
         imagesFilenames: list[str] = self.imagesManagement.getImagesFilesnames()
 
         for sIdx in range(minIdx, maxIdx + 1):
+
             gIdx: int | None = self.selectionMap.selectedlIndexToGlobalIndex(sIdx)
-            if gIdx is not None:
+
+            if gIdx != None:
                 self.imagesManagement.requestLoad(imagesFilenames[gIdx])
             else:
                 self.mainWindow.setGalleryImage(sIdx, None)
 
     #### image loaded
     #### -----------------------------------------------------------------
-    def CBimageLoaded(self: App, filename: str) -> None:
+    def CBimageLoaded(self: App, filename: str):
         """ "callback: called when requested image is loaded (asynchronous loading)."""
 
         image: ndarray = self.imagesManagement.images[filename]
-        imageIdx: int | None = self.selectionMap.imageNameToSelectedIndex(filename)
+        imageIdx = self.selectionMap.imageNameToSelectedIndex(filename)
 
-        if imageIdx is not None:
+        if imageIdx != None:
             self.mainWindow.setGalleryImage(imageIdx, image)
 
     #### image selected
     #### -----------------------------------------------------------------
-    def CBimageSelected(self: App, index: int) -> None:
+    def CBimageSelected(self: App, index):
+
         self.selectedImageIdx = index  # index in selection
 
         gIdx: int | None = self.selectionMap.selectedlIndexToGlobalIndex(
             index
         )  # global index
 
-        if gIdx is not None:
+        if gIdx != None:
+
             image: ndarray = self.imagesManagement.getImage(
                 self.imagesManagement.getImagesFilesnames()[gIdx]
             )
@@ -239,24 +221,27 @@ class App:
 
     #### tag changed
     #### -----------------------------------------------------------------
-    def CBtagChanged(self: App, key: tuple[str, str], value: bool) -> None:
-        if self.selectedImageIdx is not None:
+    def CBtagChanged(self, key: tuple[str, str], value: bool) -> None:
+
+        if self.selectedImageIdx != None:
             imageName: str | None = self.selectionMap.selectedIndexToImageName(
                 self.selectedImageIdx
             )
             if debug:
                 print(f"\t\t imageName:{imageName}")
-            if imageName is not None:
+            if imageName != None:
                 self.imagesManagement.updateImageTag(imageName, key[0], key[1], value)
 
     #### score changed
     #### -----------------------------------------------------------------
-    def CBscoreChanged(self: App, value: int) -> None:
-        if self.selectedImageIdx is not None:
+    def CBscoreChanged(self, value: int) -> None:
+
+        if self.selectedImageIdx != None:
             imageName: str | None = self.selectionMap.selectedIndexToImageName(
                 self.selectedImageIdx
             )
-            if imageName is not None:
+
+            if imageName != None:
                 self.imagesManagement.updateImageScore(imageName, value)
 
     ### score selection changed
@@ -267,9 +252,10 @@ class App:
         # get {'image name': score}
         imageScores: dict[str, int] = self.imagesManagement.imageScore
         # selected score
-        selectedScores: list[int] = [
-            i for i, selected in enumerate(listSelectedScore) if selected
-        ]
+        selectedScores: list[int] = []
+        for i, selected in enumerate(listSelectedScore):
+            if selected:
+                selectedScores.append(i)
         # send info to selectionMap
         self.selectionMap.selectByScore(imageScores, selectedScores)
         self.update()

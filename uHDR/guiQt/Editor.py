@@ -1,5 +1,5 @@
 # uHDR: HDR image editing software
-#   Copyright (C) 2022  remi cozot
+#   Copyright (C) 2022  remi cozot 
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -18,13 +18,11 @@
 # ------------------------------------------------------------------------------------------
 from typing_extensions import Self
 from PyQt6.QtWidgets import QFrame, QVBoxLayout, QTabWidget
-from PyQt6.QtGui import QDoubleValidator, QIntValidator
+from PyQt6.QtGui import QDoubleValidator, QIntValidator 
 from PyQt6.QtCore import Qt, pyqtSignal, QLocale
 
 from guiQt.LightBlockScroll import LightBlockScroll
 from guiQt.ColorBlockScroll import ColorBlockScroll
-from numpy import ndarray
-
 
 # ------------------------------------------------------------------------------------------
 # --- class Editor (QTabWidget) ------------------------------------------------------
@@ -32,29 +30,23 @@ from numpy import ndarray
 class Editor(QTabWidget):
     # class attributes
     ## signal
-    updateRequested = pyqtSignal(str, float)
 
     # constructor
-    def __init__(self: Self) -> None:
+    def __init__(self:Self) -> None:
         super().__init__()
 
         # attributes
-        self.lightEdit: LightBlockScroll = LightBlockScroll()
-        self.nbColorEditor: int = 5
-        self.colorEdits: list[ColorBlockScroll] = []
-        self.colorEdits = [ColorBlockScroll() for _ in range(self.nbColorEditor)]
+        self.lightEdit : LightBlockScroll = LightBlockScroll() 
+        self.nbColorEditor : int = 5       
+        self.colorEdits : list[ColorBlockScroll] = []
+        for i in range(self.nbColorEditor): self.colorEdits.append(ColorBlockScroll())
 
         # QTabWidget settup
         self.setTabPosition(QTabWidget.TabPosition.East)
         self.setMovable(True)
 
         # add widgets
-        self.addTab(self.lightEdit, "Light")
-        for index, colorEdit in enumerate(self.colorEdits):
-            self.addTab(colorEdit, f"Color {index}")
-            colorEdit.colorChanged.connect(self.onColorChanged)
-        self.lightEdit.colorChanged.connect(self.onColorChanged)
+        self.addTab(self.lightEdit,"Light")
+        for i in range(self.nbColorEditor): self.addTab(self.colorEdits[i],"Color "+str(i))
 
-    def onColorChanged(self, colorType: str, value: float):
-        print(f"Color {colorType} changed to {value}")
-        self.updateRequested.emit(colorType, value)
+        

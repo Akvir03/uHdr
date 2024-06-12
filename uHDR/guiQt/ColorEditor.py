@@ -1,5 +1,5 @@
 # uHDR: HDR image editing software
-#   Copyright (C) 2022  remi cozot
+#   Copyright (C) 2022  remi cozot 
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -17,13 +17,10 @@
 # import
 # ------------------------------------------------------------------------------------------
 from typing_extensions import Self
-from PyQt6.QtWidgets import (
-    QFrame,
-    QVBoxLayout,
-)
-from PyQt6.QtCore import pyqtSignal
+from PyQt6.QtWidgets import QFrame, QHBoxLayout, QVBoxLayout,QPushButton, QLabel, QLineEdit, QSlider, QCheckBox
+from PyQt6.QtGui import QDoubleValidator, QIntValidator 
+from PyQt6.QtCore import Qt, pyqtSignal, QLocale
 from guiQt.AdvanceSliderLine import AdvanceSliderLine
-
 
 # ------------------------------------------------------------------------------------------
 # --- class ColorEditor (QFrame) ------------------------------------------------------
@@ -31,34 +28,22 @@ from guiQt.AdvanceSliderLine import AdvanceSliderLine
 class ColorEditor(QFrame):
     # class attributes
     ## signal
-    hueChanged = pyqtSignal(float)
-    saturationChanged = pyqtSignal(float)
-    exposureChanged = pyqtSignal(float)
-    contrastChanged = pyqtSignal(float)
 
     # constructor
-    def __init__(self: Self) -> None:
+    def __init__(self : Self) -> None:
         super().__init__()
         self.setFrameShape(QFrame.Shape.StyledPanel)
 
         # attributes
 
         ## layout and widget
-        self.topLayout: QVBoxLayout = QVBoxLayout()
+        self.topLayout : QVBoxLayout = QVBoxLayout()
         self.setLayout(self.topLayout)
 
-        self.hueShift: AdvanceSliderLine = AdvanceSliderLine(
-            "hue shift", 0.0, (-180, 180)
-        )
-        self.saturation: AdvanceSliderLine = AdvanceSliderLine(
-            "saturation", 0.0, (-100, 100)
-        )
-        self.exposure: AdvanceSliderLine = AdvanceSliderLine(
-            "exposure", 0, (-300, 300), (-3, +3)
-        )  # -3,+3 0.01
-        self.contrast: AdvanceSliderLine = AdvanceSliderLine(
-            "contrast", 0.0, (-100, 100)
-        )
+        self.hueShift : AdvanceSliderLine = AdvanceSliderLine('hue shift', 0.0,(-180,180))
+        self.saturation : AdvanceSliderLine = AdvanceSliderLine('saturation', 0.0,(-100,100))
+        self.exposure : AdvanceSliderLine = AdvanceSliderLine('exposure',0, (-300,300),(-3,+3)) # -3,+3 0.01
+        self.contrast : AdvanceSliderLine = AdvanceSliderLine('contrast', 0.0,(-100,100))
 
         ## add widget to layout
         self.topLayout.addWidget(self.hueShift)
@@ -66,17 +51,6 @@ class ColorEditor(QFrame):
         self.topLayout.addWidget(self.exposure)
         self.topLayout.addWidget(self.contrast)
 
-        # Connect internal widget signals to the custom signals
-        self.hueShift.valueChanged.connect(lambda value: self.hueChanged.emit(value))
-        self.saturation.valueChanged.connect(
-            lambda value: self.saturationChanged.emit(value)
-        )
-        self.exposure.valueChanged.connect(
-            lambda value: self.exposureChanged.emit(value)
-        )
-        self.contrast.valueChanged.connect(
-            lambda value: self.contrastChanged.emit(value)
-        )
-
-
 # ------------------------------------------------------------------------------------------
+        
+

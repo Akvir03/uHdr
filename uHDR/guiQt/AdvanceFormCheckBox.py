@@ -1,5 +1,5 @@
 # uHDR: HDR image editing software
-#   Copyright (C) 2022  remi cozot
+#   Copyright (C) 2022  remi cozot 
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -25,40 +25,31 @@ from PyQt6.QtCore import pyqtSignal, QObject
 # --- AdvanceFormCheckBox(QObject) ---------------------------------------------------------
 # ------------------------------------------------------------------------------------------
 debug = False
+class AdvanceFormCheckBox(QObject) :
 
+    toggled : pyqtSignal = pyqtSignal(tuple,bool)
 
-class AdvanceFormCheckBox(QObject):
-
-    toggled: pyqtSignal = pyqtSignal(tuple, bool)
-
-    def __init__(
-        self: Self,
-        leftText: str,
-        rightText: str,
-        layout: QFormLayout,
-        checked: bool = False,
-        editable: bool = True,
-    ) -> None:
+    def __init__(self: Self, leftText: str, rightText: str, layout: QFormLayout, checked: bool = False, editable : bool = True) -> None:
         super().__init__()
 
         # attributes
-        self.keys: tuple[str, str] = (leftText, rightText)
-        self.checked: bool = checked
+        self.keys : tuple[str, str] = (leftText, rightText)
+        self.checked : bool = checked
 
-        self.active: bool = True
-        self.editable: bool = editable
+        self.active : bool = True
+        self.editable : bool = editable
         self.label = QLabel(leftText)
-        self.checkbox = QCheckBox(rightText)
+        self.checkbox =QCheckBox(rightText)
         self.checkbox.setChecked(checked)
-        layout.addRow(self.label, self.checkbox)
+        layout.addRow(self.label,self.checkbox)
 
         self.checkbox.toggled.connect(self.CBtoggled)
 
     # methods
-    def getKeys(self: Self) -> tuple[str, str]:
-        return self.keys
+    def getKeys(self: Self) -> tuple[str,str]:
+        return self.keys      
 
-    def setChecked(self: Self, checked: bool):
+    def setChecked(self: Self, checked:bool) :
         if self.active:
             self.active = False
             self.checkbox.setChecked(checked)
@@ -68,19 +59,11 @@ class AdvanceFormCheckBox(QObject):
 
     ## callbacks
     def CBtoggled(self: Self) -> None:
-        """ "callback called when checkbox is toggled."""
-        if debug:
-            print(
-                f"AdvanceFormCheckBox.CBtoggled() > {(self.label.text(), self.checkbox.text()), self.checkbox.isChecked()} "
-            )
+        """"callback called when checkbox is toggled.""" 
+        if debug : print(f'AdvanceFormCheckBox.CBtoggled() > {(self.label.text(), self.checkbox.text()), self.checkbox.isChecked()} ')
         if self.editable:
             if self.active:
-                if debug:
-                    print(
-                        f"AdvanceFormCheckBox.CBtoggled() > emit > {(self.label.text(), self.checkbox.text()), self.checkbox.isChecked()} "
-                    )
-                self.toggled.emit(
-                    (self.label.text(), self.checkbox.text()), self.checkbox.isChecked()
-                )
+                if debug : print(f'AdvanceFormCheckBox.CBtoggled() > emit > {(self.label.text(), self.checkbox.text()), self.checkbox.isChecked()} ')
+                self.toggled.emit((self.label.text(), self.checkbox.text()), self.checkbox.isChecked()) 
         else:
-            self.checkbox.setChecked(self.checked)
+            self.checkbox.setChecked(self.checked)  
