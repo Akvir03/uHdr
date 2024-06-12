@@ -9,7 +9,6 @@ from guiQt.CurveWidget import CurveWidget
 class LightBlock(QFrame):
     hueChanged = pyqtSignal(float)
     saturationChanged = pyqtSignal(float)
-    exposureChanged = pyqtSignal(float)
     contrastChanged = pyqtSignal(float)
 
     def __init__(self: Self) -> None:
@@ -28,10 +27,3 @@ class LightBlock(QFrame):
         self.topLayout.addWidget(self.exposure)
         self.topLayout.addWidget(self.contrast)
         self.topLayout.addWidget(self.curve)
-
-        self.exposure.valueChanged.connect(
-            lambda value: self.exposureChanged.emit(value)
-        )
-        self.contrast.valueChanged.connect(
-            lambda value: self.contrastChanged.emit(value)
-        )

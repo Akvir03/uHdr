@@ -1,18 +1,18 @@
 # uHDR: HDR image editing software
 #   Copyright (C) 2022  remi cozot
 #
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
+#    This program is free software: vous pouvez le redistribuer et/ou le modifier
+#    selon les termes de la licence GNU General Public License telle que publiée par
+#    la Free Software Foundation, soit la version 3 de la licence, soit
+#    (à votre choix) toute version ultérieure.
 #
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
+#    Ce programme est distribué dans l'espoir qu'il sera utile,
+#    mais SANS AUCUNE GARANTIE; sans même la garantie implicite de
+#    QUALITÉ MARCHANDE ou D'ADÉQUATION À UN USAGE PARTICULIER. Voir la
+#    GNU General Public License pour plus de détails.
 #
-# hdrCore project 2020-2022
-# author: remi.cozot@univ-littoral.fr
+# projet hdrCore 2020-2022
+# auteur: remi.cozot@univ-littoral.fr
 
 # import
 # ------------------------------------------------------------------------------------------
@@ -32,13 +32,14 @@ from PyQt6.QtCore import Qt, pyqtSignal, QLocale
 
 
 # ------------------------------------------------------------------------------------------
-# --- class AdvanceSlider(QFrame) ------------------------------------------------------
+# --- class AdvanceSlider(QFrame) ----------------------------------------------------------
 # ------------------------------------------------------------------------------------------
 class AdvanceSlider(QFrame):
     valueChanged: pyqtSignal = pyqtSignal(float, bool)
     autoClicked: pyqtSignal = pyqtSignal()
     activeToggled: pyqtSignal = pyqtSignal(bool)
 
+    # constructeur
     def __init__(
         self: Self,
         name: str,
@@ -101,14 +102,14 @@ class AdvanceSlider(QFrame):
 
         self.setLayout(self.vbox)
 
-        # connection to signal: slider/reset/auto
+        # connexion aux signaux : slider/reset/auto
         self.slider.valueChanged.connect(self.sliderChanged)
         self.editValue.editingFinished.connect(self.valueEdited)
         self.reset.clicked.connect(self.resetClicked)
         self.auto.clicked.connect(self.autoClickedCB)
         self.checkBoxActive.toggled.connect(self.activeChanged)
 
-    # methods
+    # méthodes
     # --------------------------------------------------
     def toGui(self, data: float) -> int:
         u: float = (data - self.dataRange[0]) / (self.dataRange[1] - self.dataRange[0])
@@ -121,14 +122,13 @@ class AdvanceSlider(QFrame):
         value: float = self.dataRange[0] * (1 - u) + self.dataRange[1] * u
         return value
 
-    # callBack
+    # callback
     # --------------------------------------------------
     def activeChanged(self):
         self.activeToggled.emit(self.checkBoxActive.isChecked())
 
     # --------------------------------------------------
     def sliderChanged(self: Self):
-
         guiData: int = self.slider.value()
         value: float = round(self.toValue(guiData) * self.precision) / self.precision
         if self.active:
@@ -168,6 +168,3 @@ class AdvanceSlider(QFrame):
     # -------------------------------------------------
     def autoClickedCB(self: Self) -> None:
         self.autoClicked.emit()
-
-
-# -------------------------------------------------------------------------------------------

@@ -52,9 +52,6 @@ class LightBlockScroll(QScrollArea):
         self.light.saturationChanged.connect(
             lambda value: self.colorChanged.emit("saturation", value)
         )
-        self.light.exposureChanged.connect(
-            lambda value: self.colorChanged.emit("exposure", value)
-        )
         self.light.contrastChanged.connect(
             lambda value: self.colorChanged.emit("contrast", value)
         )

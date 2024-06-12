@@ -20,7 +20,7 @@ from __future__ import annotations
 
 from numpy import ndarray
 from app.Jexif import Jexif
-
+import math
 import preferences.Prefs
 from guiQt.MainWindow import MainWindow
 from .ImageFIles import ImageFiles
@@ -95,7 +95,12 @@ class App:
         self.mainWindow.scoreChanged.connect(self.CBscoreChanged)
 
         self.mainWindow.scoreSelectionChanged.connect(self.CBscoreSelectionChanged)
-        self.mainWindow.imageChanged.connect(self.CBimageChanged)
+        self.mainWindow.editBlock.edit.lightEdit.light.contrast.valueChangedContrast.connect(
+            self.CBContrastSliderChanged
+        )
+        self.mainWindow.editBlock.edit.lightEdit.light.exposure.valueChanged.connect(
+            self.CBExposureSliderChanged
+        )
         self.mainWindow.setPrefs()
 
     # methods
@@ -113,38 +118,27 @@ class App:
 
         return self.mainWindow.imageGallery.getImageRangeIndex()
 
-    def CBimageChanged(self: App, index: int, image: ndarray) -> None:
-        """callback: called when an image is changed."""
-        if debug:
-            print(f"App.CBimageChanged(index={index}, image=...)")
-        # Mise à jour de l'image dans la gestion des images
-        self.imagesManagement.images[
+    def CBContrastSliderChanged(self: App, value: float) -> None:
+        index = self.selectionMap.selectedlIndexToGlobalIndex(self.selectedImageIdx)
+        if index is None:
+            return
+        self.imagesManagement.getImage(
             self.imagesManagement.getImagesFilesnames()[index]
-        ] = image
+        )
+        # Formule à ajouter
 
-        # Convertir l'image ndarray en instance de Image pour le cœur V6
-        img_instance = Image(colorData=image)
-
-        # Créer et configurer un ProcessPipe
-        process_pipe = ProcessPipe()
-        process_pipe.setImage(img_instance)
-
-        # Exécuter le traitement avec coreCcompute
-        processed_image = coreCcompute(img_instance, process_pipe)
-        print(processed_image)
-        processed_image.colorData[processed_image.colorData > 1.0] = 1.0
-        processed_image.colorData[processed_image.colorData < 0.0] = 0.0
-
-        # Mettre à jour l'image traitée dans la gestion des images
-        self.imagesManagement.images[
+    def CBExposureSliderChanged(self: App, value: float, active: bool) -> None:
+        if not active:
+            return
+        index = self.selectionMap.selectedlIndexToGlobalIndex(self.selectedImageIdx)
+        if index is None:
+            return
+        image = self.imagesManagement.getImage(
             self.imagesManagement.getImagesFilesnames()[index]
-        ] = processed_image.colorData
-
-        # Mettre à jour l'image chargée
-        self.CBimageLoaded(self.imagesManagement.getImagesFilesnames()[index])
-
-        # Mettre à jour la galerie après modification
-        self.update()
+        )
+        image = image * math.pow(2, value)
+        self.mainWindow.setEditorImage(image)
+        self.mainWindow.imageGallery.setImage(self.selectedImageIdx, image)
 
     ##  update
     ## ----------------------------------------------------------------

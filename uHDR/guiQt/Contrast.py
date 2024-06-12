@@ -41,7 +41,8 @@ from core import colourData, colourSpace
 # ------------------------------------------------------------------------------------------
 class Contrast(QFrame):
     # class attributes
-    valueChanged = pyqtSignal(float)
+    valueChangedContrast = pyqtSignal(float)
+    valueChangedOffSet = pyqtSignal(float)
 
     # constructor
     def __init__(self: Self) -> None:
@@ -115,12 +116,15 @@ class Contrast(QFrame):
 
         ## calbacks
         self.lightnessSelector.valuesChanged.connect(self.CBlightnessSelctionChanged)
-        self.scalingSlider.valueChanged.connect(self.on_value_changed)
-        self.offsetlider.valueChanged.connect(self.on_value_changed)
+        self.scalingSlider.valueChanged.connect(self.on_value_changed_constrast)
+        self.offsetlider.valueChanged.connect(self.on_value_changed_offset)
 
     # methods
-    def on_value_changed(self, value: float) -> None:
-        self.valueChanged.emit(value)
+    def on_value_changed_constrast(self, value: float) -> None:
+        self.valueChangedContrast.emit(value)
+
+    def on_value_changed_offset(self, value: float) -> None:
+        self.valueChangedOffSet.emit(value)
 
     ## callbacks
     def CBlightnessSelctionChanged(self: Self) -> None:
