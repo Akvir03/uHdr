@@ -74,10 +74,22 @@ class ColorEditor(QFrame):
         self.topLayout.addWidget(self.contrast)
 
         # connect signals
-        self.hueShift.valueChanged.connect(self.hue_changed.emit)
-        self.saturation.valueChanged.connect(self.saturation_changed.emit)
-        self.exposure.valueChanged.connect(self.exposure_changed.emit)
-        self.contrast.valueChanged.connect(self.contrast_changed.emit)
+        self.hueShift.valueChanged.connect(self.on_hue_changed)
+        self.saturation.valueChanged.connect(self.on_saturation_changed)
+        self.exposure.valueChanged.connect(self.on_exposure_changed)
+        self.contrast.valueChanged.connect(self.on_contrast_changed)
+
+    def on_hue_changed(self, name: str, value: float):
+        self.hue_changed.emit(value)
+
+    def on_saturation_changed(self, name: str, value: float):
+        self.saturation_changed.emit(value)
+
+    def on_exposure_changed(self, name: str, value: float):
+        self.exposure_changed.emit(value)
+
+    def on_contrast_changed(self, name: str, value: float):
+        self.contrast_changed.emit(value)
 
 
 # ------------------------------------------------------------------------------------------

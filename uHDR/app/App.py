@@ -18,6 +18,7 @@
 # ------------------------------------------------------------------------------------------
 from __future__ import annotations
 
+import numpy as np
 from numpy import ndarray
 from app.Jexif import Jexif
 import math
@@ -26,6 +27,7 @@ from guiQt.MainWindow import MainWindow
 from app.ImageFIles import ImageFiles
 from app.Tags import Tags
 from app.SelectionMap import SelectionMap
+from hdrCore import coreC, processing
 
 # ------------------------------------------------------------------------------------------
 # --- class App ----------------------------------------------------------------------------
@@ -150,6 +152,56 @@ class App:
         image = image * math.pow(2, value)
         self.mainWindow.setEditorImage(image)
         self.mainWindow.imageGallery.setImage(self.selectedImageIdx, image)
+
+        """
+        Handle changes to the exposure slider.
+
+        Parameters:
+        self (App): The application instance.
+        value (float): The new value of the slider.
+        active (bool): Whether the slider is active.
+        """
+        """ print(
+            f"Debug: Entering CBExposureSliderChanged with value={value} and active={active}"
+        )
+
+        if not active:
+            print("Debug: Slider is not active, returning early.")
+            return
+
+        index = self.selectionMap.selectedlIndexToGlobalIndex(self.selectedImageIdx)
+        print(
+            f"Debug: Mapped selected index {self.selectedImageIdx} to global index {index}"
+        )
+
+        if index is None:
+            print("Debug: Global index is None, returning early.")
+            return
+
+        image_filename = self.imagesManagement.getImagesFilesnames()[index]
+        image = self.imagesManagement.getImage(image_filename)
+        print(f"Debug: Loaded image from {image_filename}")
+
+        # Prepare the process pipe with the new exposure value
+        process_pipe = processing.ProcessPipe()
+        process_pipe.setImage(image)
+
+        exposure_params = {"EV": value}
+        process_pipe.append(
+            processing.exposure(), paramDict=exposure_params, name="exposure"
+        )
+
+        # Use coreCcompute for processing
+        try:
+            processed_image = coreC.coreCcompute(image, process_pipe)
+            print("Debug: Image processing with coreCcompute completed successfully.")
+        except Exception as e:
+            print(f"Error: Exception during image processing with coreCcompute - {e}")
+            return
+
+        self.mainWindow.setEditorImage(processed_image)
+        self.mainWindow.imageGallery.setImage(self.selectedImageIdx, processed_image)
+        print(f"Debug: Updated main window and gallery with the processed image.") """
 
     #### request image: zoom or page changed
     #### -----------------------------------------------------------------
