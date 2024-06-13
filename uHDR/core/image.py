@@ -20,9 +20,12 @@ from __future__ import annotations
 
 from core.colourSpace import ColorSpace
 from copy import deepcopy
-import numpy as np, os, colour
+import numpy as np
+import os
+import colour
 import skimage.transform
 import rawpy
+from imageio import imwrite
 
 # ------------------------------------------------------------------------------------------
 
@@ -30,48 +33,43 @@ debug: bool = True
 
 
 # -----------------------------------------------------------------------------
-def filenamesplit(filename):
-    """retrieve path, name and extension from a filename.
+def filenamesplit(filename: str) -> tuple[str, str, str]:
+    """Retrieve path, name and extension from a filename.
 
-    @Args:
-        filename (str,Required): filename
+    Args:
+        filename (str): Filename
 
-    @Returns:
-        (str,str,str): (path,name,ext)
+    Returns:
+        tuple[str, str, str]: (path, name, ext)
 
-    @Example:
-        filenamesplit("./dir0/dir1/name.ext") returns ("./dir0/dir1/","name","ext")
+    Example:
+        filenamesplit("./dir0/dir1/name.ext") returns ("./dir0/dir1/", "name", "ext")
     """
-
     path, nameWithExt = os.path.split(filename)
     splits = nameWithExt.split(".")
     ext = splits[-1].lower()
     name = ".".join(splits[:-1])
-    return (path, name, ext)
+    return path, name, ext
 
 
 # ------------------------------------------------------------------------------------------
-# --- class ImmageFiles(QObject) -----------------------------------------------------------
+# --- class Image -----------------------------------------------------------
 # ------------------------------------------------------------------------------------------
 class Image:
-    """color data  +  color space + hdr"""
+    """Color data + color space + HDR"""
 
     # constructor
     # -----------------------------------------------------------------
     def __init__(
-        self: Image,
-        data: np.ndarray,
-        space: ColorSpace = ColorSpace.sRGB,
-        isHdr: bool = False,
+        self, data: np.ndarray, space: ColorSpace = ColorSpace.sRGB, isHdr: bool = False
     ):
-
         self.cSpace: ColorSpace = space
         self.cData: np.ndarray = data
         self.hdr: bool = isHdr
 
     # methods
     # -----------------------------------------------------------------
-    def __repr__(self: Image) -> str:
+    def __repr__(self) -> str:
         y, x, c = self.cData.shape
         res: str = "-------------------    Image   -------------------------------"
         res += f"\n size: {x} x {y} x {c} "
@@ -81,27 +79,29 @@ class Image:
         return res
 
     # -----------------------------------------------------------------
-    def write(self: Image, fileName: str):
-        """write image to system."""
+    def write(self, fileName: str):
+        """Write image to system."""
+        # Infer file extension
+        ext = os.path.splitext(fileName)[-1].lower()
 
-        colour.write_image(
-            (self.cData * 255.0).astype(np.uint8),
-            fileName,
-            bit_depth="uint8",
-            method="Imageio",
-        )
+        # Convert image data to uint8 if saving as jpg/jpeg
+        if ext in [".jpg", ".jpeg"]:
+            img_data_to_save = (self.cData * 255).astype(np.uint8)
+        else:
+            img_data_to_save = self.cData
+
+        # Write image using imageio
+        imwrite(fileName, img_data_to_save)
 
     # -----------------------------------------------------------------
-    def buildThumbnail(self: Image, maxSize: int = 800) -> Image:
-        """build a thumbnail image."""
-
+    def buildThumbnail(self, maxSize: int = 800) -> Image:
+        """Build a thumbnail image."""
         y, x, _ = self.cData.shape
-        factor: int = maxSize / max(y, x)
+        factor: float = maxSize / max(y, x)
         if factor < 1:
             thumbcData = skimage.transform.resize(
                 self.cData, (int(y * factor), int(x * factor))
             )
-
             return Image(thumbcData, self.cSpace, self.hdr)
         else:
             return deepcopy(self)
@@ -111,18 +111,16 @@ class Image:
     @staticmethod
     def read(fileName: str) -> Image:
         """Read an image from system with advanced processing based on file type."""
-        path, name, ext = filenamesplit(
-            fileName
-        )  # Ensure filenamesplit function is defined or imported
+        path, name, ext = filenamesplit(fileName)
         if not os.path.exists(fileName):
             # Return a default gray image if file does not exist
             return Image(np.ones((600, 800, 3)) * 0.50, ColorSpace.sRGB, False)
 
         imgData = None
-        if ext == "jpg":
+        if ext in ["jpg", "jpeg"]:
             imgData = colour.read_image(fileName, bit_depth="float32", method="Imageio")
             img = Image(imgData, ColorSpace.sRGB, False)
-        """
+
         # Handling RAW files (assuming similar to 'arw' handling needed)
         elif ext == "arw":
             raw = rawpy.imread(fileName)
@@ -130,14 +128,11 @@ class Image:
                 use_camera_wb=True, output_color=rawpy.ColorSpace.sRGB, output_bps=16
             )
             imgData = colour.utilities.as_float_array(raw.postprocess(ppParams)) / (
-                pow(2, 16) - 1
+                2**16 - 1
             )
             raw.close()
             img = Image(imgData, ColorSpace.sRGB, True)  # Assuming RAW files are linear
-        """
-        # Handling JPEG files
 
-        """A tester
         # Handling HDR files with thumbnail capability
         elif ext == "hdr":
             hdr_file_path = os.path.join(path, fileName)
@@ -147,7 +142,7 @@ class Image:
 
             imgData = colour.read_image(fileName, bit_depth="float32", method="Imageio")
             img = Image(imgData, ColorSpace.sRGB, True)  # Assuming HDR files are linear
-        """
+
         # Finalize and return the image object
         if imgData is not None:
             return img
@@ -155,4 +150,25 @@ class Image:
         # Return a default image if no conditions are met (fallback)
         return Image(np.ones((600, 800, 3)) * 0.50, ColorSpace.sRGB, False)
 
-    # -----------------------------------------------------------------
+
+# Ensure the image is loaded correctly
+class ImageManagement:
+    def __init__(self):
+        self.images = {}
+
+    def addImage(self, fileName: str):
+        image = Image.read(fileName)
+        path, name, ext = filenamesplit(fileName)
+        self.images[name + "." + ext] = image
+
+    def getImage(self, name: str) -> Image:
+        if name not in self.images:
+            raise KeyError(f"Image '{name}' not found in images dictionary.")
+        return self.images[name]
+
+
+# Example usage
+imagesManagement = ImageManagement()
+imagesManagement.addImage("/mnt/data/0216_HDR.hdr")
+image = imagesManagement.getImage("0216_HDR.hdr")
+print(image)

@@ -123,7 +123,13 @@ class ImageFiles(QObject):
         # scan directory
         ext : tuple[str]= tuple(Prefs.imgExt)
         filenames = sorted(os.listdir(dirPath))
+        
+        if debug : print(f'ImageFiles.filenames: {filenames}')
+        
         self.imageFilenames = list(filter(lambda x: x.endswith(ext),filenames))
+        
+        if debug : print(f'ImageFiles.imageFilenames: {self.imageFilenames}')
+        
         self.nbImages = len(self.imageFilenames)
 
         for filename in self.imageFilenames: self.imageIsLoaded[filename] = False
@@ -183,6 +189,7 @@ class ImageFiles(QObject):
     # -----------------------------------------------------------------
     def getImage(self: ImageFiles, name: str, thumbnail : bool = True) -> ndarray:
         """get image, assumption image is loaded"""
+        print(self.images)
 
         return self.images[name]
     
