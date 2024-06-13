@@ -20,14 +20,12 @@ from __future__ import annotations
 from typing_extensions import Self
 from typing import Tuple
 from PyQt6.QtWidgets import QFileDialog, QDockWidget, QMainWindow
-from PyQt6.QtCore import pyqtSignal, Qt
+from PyQt6.QtCore import pyqtSignal, Qt, QBuffer, QIODevice
 from PyQt6.QtGui import QAction
-
+from PIL import Image as PILImage
 from numpy import ndarray
 from app.Tags import Tags
-
-import preferences.Prefs
-
+import preferences.Prefs, io
 from guiQt.AdvanceImageGallery import AdvanceImageGallery
 from guiQt.EditorBlock import EditorBlock
 from guiQt.InfoSelPrefBlock import InfoSelPrefBlock
@@ -35,7 +33,7 @@ from guiQt.InfoSelPrefBlock import InfoSelPrefBlock
 # ------------------------------------------------------------------------------------------
 # --- class MainWindow(QMainWindow) --------------------------------------------------------
 # ------------------------------------------------------------------------------------------
-debug = False
+debug = True
 
 
 class MainWindow(QMainWindow):
@@ -161,7 +159,7 @@ class MainWindow(QMainWindow):
         selectSave = QAction("&Save", self)
         selectSave.setShortcut("Ctrl+S")
         selectSave.setStatusTip("[File] saving processpipe metadata")
-        selectSave.triggered.connect(lambda x: print("save"))
+        selectSave.triggered.connect(self.CBSave)
         fileMenu.addAction(selectSave)
 
         quit = QAction("&Quit", self)
@@ -177,6 +175,43 @@ class MainWindow(QMainWindow):
         dirName = QFileDialog.getExistingDirectory(None, "Select Directory")
         if dirName != "":
             self.dirSelected.emit(dirName)
+
+    ### Save modified img
+    def CBSave(self: MainWindow) -> None:
+        """Callback to save the current image displayed in the editor."""
+        if self.editBlock.imageWidget.imagePixmap is not None:
+            # Open a file dialog to select the save location and file type
+            save_path, _ = QFileDialog.getSaveFileName(
+                self,
+                "Save Image",
+                "",
+                "Images (*.jpg *.hdr);;JPG Files (*.jpg);;HDR Files (*.hdr)",
+            )
+
+            if save_path:
+                # Convert QPixmap to QImage
+                pixmap = self.editBlock.imageWidget.imagePixmap
+                image = pixmap.toImage()
+
+                # Save QImage to a buffer
+                buffer = QBuffer()
+                buffer.open(QIODevice.OpenModeFlag.ReadWrite)
+                image.save(buffer, "JPG")
+
+                # Convert the buffer to a PIL image
+                pil_image = PILImage.open(io.BytesIO(buffer.data()))
+
+                # Check the file extension and save accordingly
+                if save_path.lower().endswith(".jpg"):
+                    pil_image.save(save_path, "JPEG")
+                elif save_path.lower().endswith(".hdr"):
+                    pil_image = pil_image.convert(
+                        "RGB"
+                    )  # Ensure the image is in RGB mode
+                    pil_image = pil_image.resize(
+                        (image.width(), image.height())
+                    )  # Resize to original dimensions
+                    pil_image.save(save_path, "HDR")
 
     ## -------------------------------------------------------------------
     ### requestImages
