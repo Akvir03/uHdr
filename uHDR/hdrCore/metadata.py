@@ -168,9 +168,9 @@ class metadata:
             with open(JSONfilename, "r") as file:
                 metaInFile = json.load(file)
                 # copy all metadata from files
-                if pref.keepAllMeta:
+                if hasattr(pref, "keepAllMeta") and pref.keepAllMeta:
                     for keyInFile in metaInFile.keys():
-                        self.metadata[keyInFile] = copy.deepcopy(metaInFile[keyInFile])
+                        res.metadata[keyInFile] = copy.deepcopy(metaInFile[keyInFile])
                 else:
                     for keyInFile in metaInFile.keys():
                         if keyInFile in res.metadata:
@@ -179,12 +179,11 @@ class metadata:
                             )
                         else:
                             print(
-                                f'WARNING[metadata "{keyInFile}" not in "tags.json"  will be deleted! (consider changing "keepAllMeta" to "True" in  preferences.py)]'
+                                f'WARNING[metadata "{keyInFile}" not in "tags.json" will be deleted! (consider changing "keepAllMeta" to "True" in preferences.py)]'
                             )
 
                 if _image.isHDR():
                     res.metadata["exif"]["Color Space"] = "scRGB"
-
         else:
             exifDict = metadata.readExif(os.path.join(_image.path, _image.name))
             res.recoverData(exifDict)

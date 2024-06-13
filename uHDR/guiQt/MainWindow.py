@@ -24,11 +24,16 @@ from PyQt6.QtCore import pyqtSignal, Qt, QBuffer, QIODevice
 from PyQt6.QtGui import QAction
 from PIL import Image as PILImage
 from numpy import ndarray
+import numpy as np
 from app.Tags import Tags
 import preferences.Prefs, io
 from guiQt.AdvanceImageGallery import AdvanceImageGallery
 from guiQt.EditorBlock import EditorBlock
 from guiQt.InfoSelPrefBlock import InfoSelPrefBlock
+import colour
+import imageio
+from hdrCore.image import Image as HDRImage, imageType, ColorSpace
+from hdrCore.metadata import metadata
 
 # ------------------------------------------------------------------------------------------
 # --- class MainWindow(QMainWindow) --------------------------------------------------------
@@ -176,43 +181,6 @@ class MainWindow(QMainWindow):
         if dirName != "":
             self.dirSelected.emit(dirName)
 
-    ### Save modified img
-    def CBSave(self: MainWindow) -> None:
-        """Callback to save the current image displayed in the editor."""
-        if self.editBlock.imageWidget.imagePixmap is not None:
-            # Open a file dialog to select the save location and file type
-            save_path, _ = QFileDialog.getSaveFileName(
-                self,
-                "Save Image",
-                "",
-                "Images (*.jpg *.hdr);;JPG Files (*.jpg);;HDR Files (*.hdr)",
-            )
-
-            if save_path:
-                # Convert QPixmap to QImage
-                pixmap = self.editBlock.imageWidget.imagePixmap
-                image = pixmap.toImage()
-
-                # Save QImage to a buffer
-                buffer = QBuffer()
-                buffer.open(QIODevice.OpenModeFlag.ReadWrite)
-                image.save(buffer, "JPG")
-
-                # Convert the buffer to a PIL image
-                pil_image = PILImage.open(io.BytesIO(buffer.data()))
-
-                # Check the file extension and save accordingly
-                if save_path.lower().endswith(".jpg"):
-                    pil_image.save(save_path, "JPEG")
-                elif save_path.lower().endswith(".hdr"):
-                    pil_image = pil_image.convert(
-                        "RGB"
-                    )  # Ensure the image is in RGB mode
-                    pil_image = pil_image.resize(
-                        (image.width(), image.height())
-                    )  # Resize to original dimensions
-                    pil_image.save(save_path, "HDR")
-
     ## -------------------------------------------------------------------
     ### requestImages
     def CBrequestImages(self: Self, minIdx: int, maxIdx: int) -> None:
@@ -244,6 +212,63 @@ class MainWindow(QMainWindow):
         if debug:
             print(f"guiQt.MainWindow.CBscoreSelectionChanged({scoreSelection})")
         self.scoreSelectionChanged.emit(scoreSelection)
+
+    # -----------------------------------------------------------------
+    ### Save modified img
+
+    def CBSave(self: QMainWindow) -> None:
+        """Callback to save the current image displayed in the editor."""
+        if self.editBlock.imageWidget.imagePixmap is not None:
+            # Open a file dialog to select the save location and file type
+            save_path, _ = QFileDialog.getSaveFileName(
+                self,
+                "Save Image",
+                "",
+                "Images (*.jpg *.hdr);;JPG Files (*.jpg);;HDR Files (*.hdr)",
+            )
+
+            if save_path:
+                # Convert QPixmap to QImage
+                pixmap = self.editBlock.imageWidget.imagePixmap
+                image = pixmap.toImage()
+
+                if save_path.lower().endswith(".jpg"):
+                    # Save as JPG
+                    buffer = QBuffer()
+                    buffer.open(QIODevice.OpenModeFlag.ReadWrite)
+                    image.save(buffer, "JPG")
+
+                    # Convert the buffer to a PIL image
+                    pil_image = PILImage.open(io.BytesIO(buffer.data()))
+                    pil_image.save(save_path, "JPEG")
+                elif save_path.lower().endswith(".hdr"):
+                    # Save as HDR
+                    # Convert QImage to numpy array
+                    ptr = image.bits()
+                    ptr.setsize(
+                        image.width() * image.height() * 4
+                    )  # Assuming 4 bytes per pixel (RGBA)
+                    arr = np.array(ptr).reshape((image.height(), image.width(), 4))
+                    arr = arr[..., :3]  # Remove alpha channel
+
+                    # Normalize the array to 0-1 range
+                    arr = arr / 255.0
+
+                    # Create an instance of the HDRImage class
+                    hdr_image = HDRImage(
+                        path="",
+                        name="",
+                        colorData=arr.astype(np.float32),
+                        type=imageType.HDR,
+                        linear=True,
+                        colorspace=ColorSpace.sRGB(),
+                    )
+
+                    # Initialize metadata
+                    hdr_image.metadata = metadata.build(hdr_image)
+
+                    # Save the image using the HDRImage write method
+                    hdr_image.write(save_path)
 
 
 # ------------------------------------------------------------------------------------------
