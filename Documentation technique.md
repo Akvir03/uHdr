@@ -265,6 +265,7 @@
   - `CBtagChanged(self, key: tuple[str, str], value: bool) -> None`: Méthode de rappel pour changer une étiquette. Émet le signal `tagChanged`.
   - `CBscoreChanged(self, value: int) -> None`: Méthode de rappel pour changer le score. Émet le signal `scoreChanged`.
   - `CBscoreSelectionChanged(self: Self, scoreSelection: list) -> None`: Méthode de rappel pour changer la sélection de score. Émet le signal `scoreSelectionChanged`.
+  Fonction modifiée par nous : 
   - `CBSave(self: QMainWindow) -> None`: Méthode de rappel pour sauvegarder l'image affichée dans l'éditeur.
 
 ## ImageFiles.py
@@ -431,14 +432,14 @@
   - `getImageRangeIndex(self: App) -> tuple[int, int]`: Retourne l'intervalle des indices des images affichées par la galerie.
   - `update(self: App) -> None`: Met à jour la galerie après un changement de sélection ou de répertoire.
   - `CBdirSelected(self: App, path: str) -> None`: Méthode de rappel appelée lors de la sélection d'un répertoire.
-  - `CBExposureSliderChanged(self: App, value: float, active: bool) -> None`: Méthode de rappel appelée lors du changement de la valeur du curseur d'exposition.
   - `CBrequestImages(self: App, minIdx: int, maxIdx: int) -> None`: Méthode de rappel appelée lors de la demande de chargement d'images (lors du changement de page ou de niveau de zoom).
   - `CBimageLoaded(self: App, filename: str) -> None`: Méthode de rappel appelée lorsqu'une image demandée est chargée.
   - `CBimageSelected(self: App, index: int) -> None`: Méthode de rappel appelée lorsqu'une image est sélectionnée.
   - `CBtagChanged(self: App, key: tuple[str, str], value: bool) -> None`: Méthode de rappel appelée lors du changement d'une étiquette.
   - `CBscoreChanged(self: App, value: int) -> None`: Méthode de rappel appelée lors du changement de score.
   - `CBscoreSelectionChanged(self: App, listSelectedScore: list[bool]) -> None`: Méthode de rappel appelée lors du changement de la sélection de score.
-
+ Fonction ajoutée par nous : 
+  - `CBExposureSliderChanged(self: App, value: float, active: bool) -> None`: Méthode de rappel appelée lors du changement de la valeur du curseur d'exposition.
 ## colourData.py
 
 ### Fonctions
